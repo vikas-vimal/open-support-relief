@@ -1,26 +1,135 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* ============================================================================
+ * Colour VALUES live in config/app.config.ts and are injected as CSS custom
+ * properties by the root layout (see lib/theme/theme-css.ts). This file only
+ * maps Tailwind utilities onto those variables.
+ *
+ * `inline` is load-bearing: it compiles utilities to var(--canvas) rather than
+ * baking a hex, which is the only reason the theme toggle and the dark-mode
+ * media query take effect at runtime.
+ *
+ * Contrast is enforced by lib/theme/contrast.spec.ts — edit colours in config,
+ * then run that suite. Do not hardcode a colour in this file.
+ * ========================================================================= */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-border-strong: var(--border);
+  --color-border-soft: var(--border-soft);
+  --color-header-bg: var(--header-bg);
+  --color-meter-track: var(--meter-track);
+  --color-accent: var(--accent);
+  --color-warn: var(--warn);
+  --color-success: var(--success);
+
+  --color-primary: var(--brand-primary);
+  --color-primary-hover: var(--brand-primary-hover);
+  --color-brand-ink: var(--brand-ink);
+  --color-meter: var(--brand-meter);
+  --color-meter-soft: var(--brand-meter-soft);
+  --color-live: var(--brand-live);
+  --color-offline: var(--brand-offline);
+  --color-urgent: var(--brand-urgent);
+
+  /* Corner treatment, from config.shape. Sharp by default: a 90° corner beside
+     a 2px ink border and a hard offset shadow reads as printed matter. */
+  --radius-card: var(--radius-card);
+  --radius-pill: var(--radius-pill);
+
+  --shadow-poster-sm: 3px 3px 0 var(--shadow-color);
+  --shadow-poster: 6px 6px 0 var(--shadow-color);
+  --shadow-poster-lg: 8px 8px 0 var(--shadow-color);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Bowlby One for display only (~18KB); Inter variable for everything else.
+   A 2G font budget does not survive more families than this. */
+@theme {
+  --font-display: var(--font-bowlby), Impact, "Haettenschweiler", sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+html {
+  background: var(--canvas);
+  /* Stop iOS inflating text in landscape — it breaks the poster layout. */
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--canvas);
+  color: var(--fg);
+  font-family: var(--font-sans);
+}
+
+/* Uppercase tracked label. Kept for urgency stamps only — buttons and the
+   masthead dropped it because caps at .18em cost roughly a third of their
+   width, which is what forced labels onto two lines. */
+@utility label-track {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-weight: 600;
+}
+
+@utility label-track-wide {
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-weight: 600;
+}
+
+/* Pressable poster button: the hard offset shadow collapses on press. */
+@utility poster-press {
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
+
+  &:active:not(:disabled) {
+    transform: translate(3px, 3px);
+    box-shadow: 3px 3px 0 var(--shadow-color);
+  }
+}
+
+/* Live-status blip. The final keyframe is opacity 1 on purpose: the
+   reduced-motion block below collapses duration and forces a single
+   iteration, so the dot must settle VISIBLE, never transparent. */
+@keyframes blip {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.25;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@utility animate-blip {
+  animation: blip 1.6s ease-in-out infinite;
+}
+
+@layer base {
+  /* Radix handles focus management; this makes focus *visible* at AA contrast. */
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
