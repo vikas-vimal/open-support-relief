@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 
+import { ContributionSearch } from "@/components/moderation/contribution-search";
 import { ItemRequestQueue } from "@/components/moderation/item-request-queue";
 import { ModerationQueue } from "@/components/moderation/moderation-queue";
 
 const TAB = {
   CLAIMS: "CLAIMS",
   REQUESTS: "REQUESTS",
+  SEARCH: "SEARCH",
 } as const;
 
 type Tab = (typeof TAB)[keyof typeof TAB];
@@ -15,6 +17,7 @@ type Tab = (typeof TAB)[keyof typeof TAB];
 const TABS: readonly { id: Tab; label: string; panelId: string }[] = [
   { id: TAB.CLAIMS, label: "Airdrop claims", panelId: "panel-claims" },
   { id: TAB.REQUESTS, label: "Item requests", panelId: "panel-requests" },
+  { id: TAB.SEARCH, label: "Search", panelId: "panel-search" },
 ];
 
 /**
@@ -71,6 +74,14 @@ export function ModerationConsole() {
         hidden={active !== TAB.REQUESTS}
       >
         {active === TAB.REQUESTS && <ItemRequestQueue />}
+      </div>
+      <div
+        role="tabpanel"
+        id="panel-search"
+        aria-labelledby="tab-search"
+        hidden={active !== TAB.SEARCH}
+      >
+        {active === TAB.SEARCH && <ContributionSearch />}
       </div>
     </div>
   );

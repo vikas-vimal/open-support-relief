@@ -32,6 +32,29 @@ export async function fetchPendingContributions(): Promise<PendingContribution[]
   return parsed.data.contributions;
 }
 
+/** Advanced search across all contributions; empty filters are omitted. */
+export async function searchContributions(
+  params: Record<string, string>,
+): Promise<PendingContribution[]> {
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value.trim() !== "") query.set(key, value.trim());
+  }
+  const response = await fetch(
+    `/api/moderation/contributions/search?${query.toString()}`,
+    { headers: { accept: "application/json" }, cache: "no-store" },
+  );
+  if (!response.ok) {
+    throw new ModerationError(
+      response.status === 403 ? "Moderators only" : "Search failed",
+      response.status,
+    );
+  }
+  const parsed = moderationQueueResponseSchema.safeParse(await response.json());
+  if (!parsed.success) throw new ModerationError("Unexpected response", 500);
+  return parsed.data.contributions;
+}
+
 export async function reviewContribution(
   id: string,
   action: ReviewAction,
