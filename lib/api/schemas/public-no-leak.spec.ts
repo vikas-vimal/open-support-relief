@@ -104,6 +104,7 @@ describe("public payloads never carry an address or phone", () => {
       recipientName: "Coordinator",
       recipientPhone: "+91 90000 00000",
       instructions: null,
+      receiverCode: "CJP-ABCDEFGH",
       remaining: 9,
     });
     expect(parsed.fullAddress).toBe("42 Real Marg");
