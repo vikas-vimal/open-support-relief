@@ -26,6 +26,7 @@ const en = {
   "search.matchCountOne": "1 matching item",
 
   "aria.filterByCategory": "Filter airdrops by category",
+  "aria.chooseSite": "Choose a site",
   "aria.share": "{item} — share",
   "aria.myAirdrops": "My airdrops",
   "aria.wall": "Wall of supporters",
@@ -201,6 +202,7 @@ const hi: Record<MessageKey, string> = {
   "search.matchCountOne": "1 मेल खाता आइटम",
 
   "aria.filterByCategory": "श्रेणी के अनुसार एयरड्रॉप छाँटें",
+  "aria.chooseSite": "साइट चुनें",
   "aria.share": "{item} — शेयर करें",
   "aria.myAirdrops": "मेरे एयरड्रॉप",
   "aria.wall": "समर्थकों की दीवार",

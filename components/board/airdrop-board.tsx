@@ -9,6 +9,7 @@ import { FreshnessBanner } from "@/components/board/freshness-banner";
 import { NeedCard } from "@/components/board/need-card";
 import { PulseTicker } from "@/components/board/pulse-ticker";
 import { SearchBar } from "@/components/board/search-bar";
+import { SitePicker } from "@/components/board/site-picker";
 import { ContributeSheet } from "@/components/contribute/contribute-sheet";
 import { RequestItemSheet } from "@/components/request-item/request-item-sheet";
 import { PosterButton } from "@/components/ui/poster-button";
@@ -26,12 +27,24 @@ import {
 } from "@/lib/domain/needs.util";
 import { useBoardQuery } from "@/lib/hooks/use-board-query";
 import { useOnlineStatus } from "@/lib/hooks/use-online-status";
+import { useSites } from "@/lib/hooks/use-sites";
 import { useI18n } from "@/lib/i18n/use-i18n";
 
 const EMPTY_NEEDS: readonly NeedSummary[] = [];
 
 export function AirdropBoard() {
-  const { snapshot, isStale, lastUpdatedAt } = useBoardQuery();
+  const { data: sites } = useSites();
+  const [chosenSiteId, setChosenSiteId] = useState<string | undefined>(
+    undefined,
+  );
+  // Only steer the board by site once more than one exists; with a single site
+  // this stays undefined, so the fetch and cache key are unchanged.
+  const isMultiSite = (sites?.length ?? 0) > 1;
+  const activeSiteId = isMultiSite
+    ? (chosenSiteId ?? sites?.[0]?.id)
+    : undefined;
+
+  const { snapshot, isStale, lastUpdatedAt } = useBoardQuery(activeSiteId);
   const isOnline = useOnlineStatus();
   const { t } = useI18n();
 
@@ -57,7 +70,7 @@ export function AirdropBoard() {
    * React's documented pattern for derived state, avoids an extra paint, and
    * keeps clear of the set-state-in-effect lint rule.
    */
-  const windowKey = `${categoryFilter}::${searchQuery.trim()}`;
+  const windowKey = `${activeSiteId ?? ""}::${categoryFilter}::${searchQuery.trim()}`;
   const [previousWindowKey, setPreviousWindowKey] = useState(windowKey);
   if (previousWindowKey !== windowKey) {
     setPreviousWindowKey(windowKey);
@@ -91,6 +104,12 @@ export function AirdropBoard() {
           resultCount={matchingNeeds.length}
         />
       </div>
+
+      <SitePicker
+        sites={sites ?? []}
+        selectedId={activeSiteId}
+        onSelect={setChosenSiteId}
+      />
 
       <PulseTicker />
 

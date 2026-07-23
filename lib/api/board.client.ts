@@ -22,8 +22,14 @@ export class BoardFetchError extends Error {
  */
 export async function fetchBoardSnapshot(
   signal?: AbortSignal,
+  siteId?: string,
 ): Promise<BoardSnapshot> {
-  const response = await fetch("/api/needs", {
+  // No siteId → the server's active site, exactly as before. A siteId is only
+  // ever passed once the multi-site picker exists (more than one active site).
+  const url = siteId
+    ? `/api/needs?siteId=${encodeURIComponent(siteId)}`
+    : "/api/needs";
+  const response = await fetch(url, {
     signal,
     headers: { accept: "application/json" },
   });

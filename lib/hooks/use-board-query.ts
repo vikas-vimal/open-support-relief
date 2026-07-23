@@ -23,11 +23,13 @@ interface BoardQueryResult {
  * Persisted to IndexedDB by QueryProvider, so a returning protester sees the
  * last known board immediately — before the network answers, or instead of it.
  */
-export function useBoardQuery(): BoardQueryResult {
+export function useBoardQuery(siteId?: string): BoardQueryResult {
   const query = useQuery({
-    queryKey: queryKeys.board(BOARD_SCOPE),
+    // Keyed per site so switching sites keeps each board cached separately; the
+    // default (no siteId) stays the single "active" scope, unchanged.
+    queryKey: queryKeys.board(siteId ?? BOARD_SCOPE),
     // Forward React Query's AbortSignal so a superseded refetch is cancelled.
-    queryFn: ({ signal }) => fetchBoardSnapshot(signal),
+    queryFn: ({ signal }) => fetchBoardSnapshot(signal, siteId),
   });
 
   return {
@@ -57,8 +59,8 @@ export function useInvalidateBoard(): () => Promise<void> {
   const queryClient = useQueryClient();
 
   return useCallback(async () => {
-    await queryClient.invalidateQueries({
-      queryKey: queryKeys.board(BOARD_SCOPE),
-    });
+    // Prefix match on ["board"] so whichever site's board is showing refetches,
+    // not only the default "active" scope.
+    await queryClient.invalidateQueries({ queryKey: ["board"] });
   }, [queryClient]);
 }

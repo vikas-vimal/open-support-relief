@@ -12,6 +12,8 @@ export const queryKeys = {
   contributors: () => ["contributors"] as const,
   /** Public momentum ticker — aggregate counts only, not persisted. */
   pulse: () => ["pulse"] as const,
+  /** Active-site list for the multi-site picker — not persisted. */
+  sites: () => ["sites"] as const,
   /** NOT persistable — see below. */
   dropPointReveal: (dropPointId: string) =>
     ["drop-point-reveal", dropPointId] as const,
