@@ -6,6 +6,7 @@ import { appConfig } from "@/config/app.config";
 import { createAirdropCardFile } from "@/lib/client/airdrop-card";
 import { shareImage } from "@/lib/client/share";
 import { buildAirdropShareText } from "@/lib/domain/share.util";
+import { useI18n } from "@/lib/i18n/use-i18n";
 
 interface AirdropShareButtonProps {
   qty: number;
@@ -24,6 +25,7 @@ export function AirdropShareButton({
   itemName,
 }: AirdropShareButtonProps) {
   const [busy, setBusy] = useState(false);
+  const { t } = useI18n();
 
   async function handleShare(): Promise<void> {
     setBusy(true);
@@ -52,7 +54,7 @@ export function AirdropShareButton({
       disabled={busy}
       className="border-border-strong text-fg self-start border-2 bg-surface px-3 py-1.5 text-xs font-semibold disabled:opacity-60"
     >
-      {busy ? "Preparing…" : `${appConfig.copy.shareCta} card 🪂`}
+      {busy ? t("mine.preparing") : t("mine.shareCard")}
     </button>
   );
 }

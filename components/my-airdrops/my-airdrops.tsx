@@ -9,6 +9,7 @@ import { FULFILMENT_PLATFORM_LABEL } from "@/lib/domain/airdrop.constants";
 import { formatQuantity } from "@/lib/domain/format.util";
 import { formatRelativeTime } from "@/lib/domain/needs.util";
 import { useMyContributions } from "@/lib/hooks/use-my-contributions";
+import { useI18n } from "@/lib/i18n/use-i18n";
 
 function platformName(platform: string, platformOther: string | null): string {
   if (platform === "OTHER" && platformOther) return platformOther;
@@ -30,6 +31,7 @@ export function MyAirdrops() {
   const { data: session } = useSession();
   const { data: contributions, isLoading, isError } = useMyContributions();
   const [signingIn, setSigningIn] = useState(false);
+  const { t } = useI18n();
 
   const isAnonymous = session?.user
     ? ((session.user as { isAnonymous?: boolean }).isAnonymous ?? false)
@@ -47,12 +49,9 @@ export function MyAirdrops() {
     <div className="mx-auto flex max-w-3xl flex-col gap-4 p-4">
       {isAnonymous && (contributions?.length ?? 0) > 0 && (
         <div className="border-border-structure bg-surface-2 flex flex-col gap-2 border-2 p-4">
-          <p className="text-sm font-semibold text-fg">
-            These are saved on this device only.
-          </p>
+          <p className="text-sm font-semibold text-fg">{t("mine.deviceOnly")}</p>
           <p className="text-xs leading-relaxed text-fg-muted">
-            Sign in with Google to keep your airdrops across devices. No personal
-            details are shown publicly unless you choose to appear on the wall.
+            {t("mine.deviceOnlyBody")}
           </p>
           <button
             type="button"
@@ -60,24 +59,22 @@ export function MyAirdrops() {
             disabled={signingIn}
             className="border-border-strong bg-primary text-brand-ink mt-1 border-2 px-4 py-2.5 text-sm font-semibold disabled:opacity-60"
           >
-            {signingIn ? "Redirecting…" : "Sign in with Google"}
+            {signingIn ? t("mine.redirecting") : t("mine.signIn")}
           </button>
         </div>
       )}
 
       {isLoading ? (
-        <p className="text-sm text-fg-muted">Loading your airdrops…</p>
+        <p className="text-sm text-fg-muted">{t("mine.loading")}</p>
       ) : isError ? (
-        <p className="text-sm text-danger">Could not load your airdrops.</p>
+        <p className="text-sm text-danger">{t("mine.error")}</p>
       ) : (contributions?.length ?? 0) === 0 ? (
         <div className="border-border-soft flex flex-col items-center gap-2 border-2 border-dashed p-8 text-center">
           <p className="text-2xl" aria-hidden="true">
             📦
           </p>
-          <p className="text-sm font-semibold text-fg">No airdrops yet</p>
-          <p className="text-xs text-fg-muted">
-            When you send supplies, they&apos;ll show up here with their status.
-          </p>
+          <p className="text-sm font-semibold text-fg">{t("mine.emptyTitle")}</p>
+          <p className="text-xs text-fg-muted">{t("mine.emptyBody")}</p>
         </div>
       ) : (
         <ul className="flex list-none flex-col gap-3">
@@ -93,11 +90,15 @@ export function MyAirdrops() {
                 <StatusBadge state={item.state} />
               </div>
               <p className="text-xs text-fg-muted">
-                via {platformName(item.platform, item.platformOther)} ·{" "}
-                {formatRelativeTime(item.createdAt, new Date())}
+                {t("mine.via", {
+                  platform: platformName(item.platform, item.platformOther),
+                })}{" "}
+                · {formatRelativeTime(item.createdAt, new Date())}
                 {item.state === "VERIFIED" &&
                   item.reviewedAt &&
-                  ` · confirmed ${formatRelativeTime(item.reviewedAt, new Date())}`}
+                  ` · ${t("mine.confirmed", {
+                    time: formatRelativeTime(item.reviewedAt, new Date()),
+                  })}`}
               </p>
               <AirdropShareButton
                 qty={item.qtyClaimed}

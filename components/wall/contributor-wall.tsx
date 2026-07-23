@@ -2,6 +2,7 @@
 
 import { formatQuantity } from "@/lib/domain/format.util";
 import { useContributorWall } from "@/lib/hooks/use-contributor-wall";
+import { useI18n } from "@/lib/i18n/use-i18n";
 
 const MEDALS = ["🥇", "🥈", "🥉"] as const;
 
@@ -14,12 +15,13 @@ const MEDALS = ["🥇", "🥈", "🥉"] as const;
  */
 export function ContributorWall() {
   const { data, isLoading, isError } = useContributorWall();
+  const { t } = useI18n();
 
   if (isLoading) {
-    return <p className="text-fg-muted p-6 text-sm">Loading the wall…</p>;
+    return <p className="text-fg-muted p-6 text-sm">{t("wall.loading")}</p>;
   }
   if (isError || !data) {
-    return <p className="text-danger p-6 text-sm">Could not load the wall.</p>;
+    return <p className="text-danger p-6 text-sm">{t("wall.error")}</p>;
   }
 
   const isEmpty = data.leaders.length === 0 && data.anonymousSupporterCount === 0;
@@ -29,10 +31,8 @@ export function ContributorWall() {
         <p className="text-2xl" aria-hidden="true">
           🪂
         </p>
-        <p className="text-fg text-sm font-semibold">No verified airdrops yet</p>
-        <p className="text-fg-muted text-xs">
-          Once airdrops are verified, top supporters show up here.
-        </p>
+        <p className="text-fg text-sm font-semibold">{t("wall.emptyTitle")}</p>
+        <p className="text-fg-muted text-xs">{t("wall.emptyBody")}</p>
       </div>
     );
   }
@@ -58,7 +58,7 @@ export function ContributorWall() {
               <span className="text-fg font-display shrink-0 text-base">
                 {formatQuantity(leader.verifiedQty)}
                 <span className="text-fg-muted ml-1 text-xs font-semibold">
-                  sent
+                  {t("wall.sent")}
                 </span>
               </span>
             </li>
@@ -68,12 +68,12 @@ export function ContributorWall() {
 
       {data.anonymousSupporterCount > 0 && (
         <p className="border-border-soft bg-surface-2 text-fg-muted border-2 border-dashed px-4 py-3 text-xs">
-          + {data.anonymousSupporterCount} anonymous{" "}
-          {data.anonymousSupporterCount === 1 ? "supporter" : "supporters"} sent{" "}
-          <span className="text-fg font-semibold">
-            {formatQuantity(data.anonymousQty)}
-          </span>{" "}
-          more.
+          {data.anonymousSupporterCount === 1
+            ? t("wall.anonOne", { qty: formatQuantity(data.anonymousQty) })
+            : t("wall.anonMany", {
+                count: data.anonymousSupporterCount,
+                qty: formatQuantity(data.anonymousQty),
+              })}
         </p>
       )}
     </div>

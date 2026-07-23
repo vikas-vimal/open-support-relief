@@ -67,6 +67,37 @@ const en = {
   "category.SAFETY": "Safety",
 
   "aria.locale": "Change language",
+  "nav.board": "← Board",
+
+  "wall.title": "Wall of supporters",
+  "wall.subtitle": "Verified airdrops, ranked. Thank you.",
+  "wall.loading": "Loading the wall…",
+  "wall.error": "Could not load the wall.",
+  "wall.emptyTitle": "No verified airdrops yet",
+  "wall.emptyBody": "Once airdrops are verified, top supporters show up here.",
+  "wall.sent": "sent",
+  "wall.anonOne": "+ 1 anonymous supporter sent {qty} more.",
+  "wall.anonMany": "+ {count} anonymous supporters sent {qty} more.",
+
+  "mine.title": "My airdrops",
+  "mine.subtitle": "What you've sent and where it stands.",
+  "mine.deviceOnly": "These are saved on this device only.",
+  "mine.deviceOnlyBody":
+    "Sign in with Google to keep your airdrops across devices. No personal details are shown publicly unless you choose to appear on the wall.",
+  "mine.signIn": "Sign in with Google",
+  "mine.redirecting": "Redirecting…",
+  "mine.loading": "Loading your airdrops…",
+  "mine.error": "Could not load your airdrops.",
+  "mine.emptyTitle": "No airdrops yet",
+  "mine.emptyBody": "When you send supplies, they'll show up here with their status.",
+  "mine.via": "via {platform}",
+  "mine.confirmed": "confirmed {time}",
+  "mine.shareCard": "Share card 🪂",
+  "mine.preparing": "Preparing…",
+
+  "status.pending": "Awaiting check",
+  "status.verified": "Verified",
+  "status.rejected": "Not accepted",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -127,6 +158,37 @@ const hi: Record<MessageKey, string> = {
   "category.SAFETY": "सुरक्षा",
 
   "aria.locale": "भाषा बदलें",
+  "nav.board": "← बोर्ड",
+
+  "wall.title": "समर्थकों की दीवार",
+  "wall.subtitle": "सत्यापित एयरड्रॉप, क्रम में। धन्यवाद।",
+  "wall.loading": "दीवार लोड हो रही है…",
+  "wall.error": "दीवार लोड नहीं हो सकी।",
+  "wall.emptyTitle": "अभी तक कोई सत्यापित एयरड्रॉप नहीं",
+  "wall.emptyBody": "एयरड्रॉप सत्यापित होते ही, शीर्ष समर्थक यहाँ दिखेंगे।",
+  "wall.sent": "भेजा",
+  "wall.anonOne": "+ 1 गुमनाम समर्थक ने {qty} और भेजा।",
+  "wall.anonMany": "+ {count} गुमनाम समर्थकों ने {qty} और भेजा।",
+
+  "mine.title": "मेरे एयरड्रॉप",
+  "mine.subtitle": "आपने क्या भेजा और उसकी स्थिति क्या है।",
+  "mine.deviceOnly": "ये सिर्फ़ इसी डिवाइस पर सहेजे गए हैं।",
+  "mine.deviceOnlyBody":
+    "अपने एयरड्रॉप सभी डिवाइस पर रखने के लिए Google से साइन इन करें। जब तक आप दीवार पर दिखना न चुनें, कोई निजी जानकारी सार्वजनिक नहीं दिखाई जाती।",
+  "mine.signIn": "Google से साइन इन करें",
+  "mine.redirecting": "रीडायरेक्ट कर रहे हैं…",
+  "mine.loading": "आपके एयरड्रॉप लोड हो रहे हैं…",
+  "mine.error": "आपके एयरड्रॉप लोड नहीं हो सके।",
+  "mine.emptyTitle": "अभी तक कोई एयरड्रॉप नहीं",
+  "mine.emptyBody": "जब आप सामान भेजेंगे, वे यहाँ उनकी स्थिति के साथ दिखेंगे।",
+  "mine.via": "{platform} के ज़रिए",
+  "mine.confirmed": "{time} पुष्टि हुई",
+  "mine.shareCard": "कार्ड शेयर करें 🪂",
+  "mine.preparing": "तैयार हो रहा है…",
+
+  "status.pending": "जाँच बाकी",
+  "status.verified": "सत्यापित",
+  "status.rejected": "स्वीकार नहीं हुआ",
 };
 
 export const messages: Readonly<Record<Locale, Record<MessageKey, string>>> = {
