@@ -10,6 +10,7 @@ import {
   formatQuantity,
 } from "@/lib/domain/format.util";
 import { buildNeedShareText } from "@/lib/domain/share.util";
+import { useI18n } from "@/lib/i18n/use-i18n";
 import type { NeedSummary } from "@/lib/domain/airdrop.types";
 
 interface NeedCardProps {
@@ -18,6 +19,7 @@ interface NeedCardProps {
 }
 
 export function NeedCard({ need, onContribute }: NeedCardProps) {
+  const { t } = useI18n();
   const isSatisfied = need.shortfall === 0;
 
   function handleShare(): void {
@@ -45,8 +47,8 @@ export function NeedCard({ need, onContribute }: NeedCardProps) {
           <button
             type="button"
             onClick={handleShare}
-            aria-label={`${appConfig.copy.shareCta} ${need.itemName}`}
-            title={appConfig.copy.shareCta}
+            aria-label={t("aria.share", { item: need.itemName })}
+            title={t("cta.share")}
             className="border-border-strong bg-surface text-fg flex size-8 items-center justify-center rounded-icon border-2 text-sm leading-none"
           >
             <span aria-hidden="true">🔗</span>
@@ -64,7 +66,7 @@ export function NeedCard({ need, onContribute }: NeedCardProps) {
 
       {isSatisfied ? (
         <p className="label-track border-success text-success rounded-card border-2 px-3 py-2 text-center text-xs">
-          Fully covered — please send something else
+          {t("card.fullyCovered")}
         </p>
       ) : (
         /* Two columns: the shortfall carries the urgency, the button carries
@@ -82,7 +84,7 @@ export function NeedCard({ need, onContribute }: NeedCardProps) {
                 {formatCompactQuantity(need.shortfall)}
               </p>
               <p className="text-fg-muted mt-1 text-[0.6875rem] font-semibold">
-                {appConfig.copy.stillNeededLabel}
+                {t("label.stillNeeded")}
               </p>
             </div>
 
@@ -93,14 +95,16 @@ export function NeedCard({ need, onContribute }: NeedCardProps) {
                   className="inline-block size-1.5 shrink-0 rounded-full bg-white"
                 />
                 {need.activeContributorCount === 1
-                  ? "1 ordering now"
-                  : `${need.activeContributorCount} ordering now`}
+                  ? t("card.orderingNowOne")
+                  : t("card.orderingNow", {
+                      count: need.activeContributorCount,
+                    })}
               </p>
             )}
           </div>
 
           <PosterButton size="lg" onClick={() => onContribute(need)}>
-            {appConfig.copy.contributeCta}
+            {t("cta.contribute")}
           </PosterButton>
         </div>
       )}

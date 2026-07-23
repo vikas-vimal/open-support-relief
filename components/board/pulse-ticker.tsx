@@ -2,6 +2,7 @@
 
 import { formatCompactQuantity } from "@/lib/domain/format.util";
 import { usePulse } from "@/lib/hooks/use-pulse";
+import { useI18n } from "@/lib/i18n/use-i18n";
 
 /**
  * Slim momentum line above the board — "N items delivered, M in the last 24h".
@@ -12,6 +13,7 @@ import { usePulse } from "@/lib/hooks/use-pulse";
  */
 export function PulseTicker() {
   const { data } = usePulse();
+  const { t } = useI18n();
 
   if (!data || data.itemsAllTime === 0) return null;
 
@@ -21,19 +23,13 @@ export function PulseTicker() {
       className="text-fg-muted border-border-soft mx-auto max-w-3xl border-b-2 px-4 py-2 text-center text-xs"
     >
       <span aria-hidden="true">🪂 </span>
-      <span className="text-fg font-semibold">
-        {formatCompactQuantity(data.itemsAllTime)}
-      </span>{" "}
-      items delivered
-      {data.itemsLast24h > 0 && (
-        <>
-          {" · "}
-          <span className="text-fg font-semibold">
-            {formatCompactQuantity(data.itemsLast24h)}
-          </span>{" "}
-          in the last 24h
-        </>
-      )}
+      {t("pulse.delivered", {
+        count: formatCompactQuantity(data.itemsAllTime),
+      })}
+      {data.itemsLast24h > 0 &&
+        ` · ${t("pulse.last24h", {
+          count: formatCompactQuantity(data.itemsLast24h),
+        })}`}
     </p>
   );
 }

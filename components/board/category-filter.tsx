@@ -4,10 +4,11 @@ import {
   CATEGORY_FILTER_ALL,
   CATEGORY_FILTER_ALL_EMOJI,
   AIRDROP_CATEGORY_EMOJI,
-  AIRDROP_CATEGORY_LABEL,
   AIRDROP_CATEGORY_ORDER,
   type CategoryFilter,
 } from "@/lib/domain/airdrop.constants";
+import { useI18n } from "@/lib/i18n/use-i18n";
+import type { MessageKey } from "@/lib/i18n/messages";
 
 interface CategoryFilterBarProps {
   selected: CategoryFilter;
@@ -21,8 +22,8 @@ const FILTERS: readonly CategoryFilter[] = [
   ...AIRDROP_CATEGORY_ORDER,
 ];
 
-function filterLabel(filter: CategoryFilter): string {
-  return filter === CATEGORY_FILTER_ALL ? "All" : AIRDROP_CATEGORY_LABEL[filter];
+function filterLabelKey(filter: CategoryFilter): MessageKey {
+  return `category.${filter}` as MessageKey;
 }
 
 function filterEmoji(filter: CategoryFilter): string {
@@ -45,10 +46,12 @@ export function CategoryFilterBar({
   onSelect,
   counts,
 }: CategoryFilterBarProps) {
+  const { t } = useI18n();
+
   return (
     <div
       role="radiogroup"
-      aria-label="Filter airdrops by category"
+      aria-label={t("aria.filterByCategory")}
       className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {FILTERS.map((filter) => {
@@ -76,7 +79,7 @@ export function CategoryFilterBar({
             ].join(" ")}
           >
             <span aria-hidden="true">{filterEmoji(filter)}</span>
-            {filterLabel(filter)}
+            {t(filterLabelKey(filter))}
             <span className="font-mono text-xs tabular-nums opacity-70">
               {count}
             </span>

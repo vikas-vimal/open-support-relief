@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
 
+import { LocaleToggle } from "@/components/i18n/locale-toggle";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { appConfig } from "@/config/app.config";
+import { useI18n } from "@/lib/i18n/use-i18n";
 
 interface BoardHeaderProps {
   shortItemCount: number;
@@ -17,7 +21,8 @@ interface BoardHeaderProps {
  * which pins this together with the search bar as one block.
  */
 export function BoardHeader({ shortItemCount, isOnline }: BoardHeaderProps) {
-  const { brand, copy } = appConfig;
+  const { brand } = appConfig;
+  const { t } = useI18n();
 
   return (
     <div className="bg-header-bg border-border-structure border-b-2">
@@ -36,8 +41,8 @@ export function BoardHeader({ shortItemCount, isOnline }: BoardHeaderProps) {
             {/* Public wall of verified supporters — the social-proof hook. */}
             <Link
               href="/wall"
-              aria-label="Wall of supporters"
-              title="Wall of supporters"
+              aria-label={t("aria.wall")}
+              title={t("aria.wall")}
               className="border-border-strong bg-surface text-fg flex size-8 shrink-0 items-center justify-center rounded-icon border-2 text-sm leading-none"
             >
               <span aria-hidden="true">🏆</span>
@@ -45,12 +50,13 @@ export function BoardHeader({ shortItemCount, isOnline }: BoardHeaderProps) {
             {/* Supporter's own history — the standard top-right "my stuff" slot. */}
             <Link
               href="/my-airdrops"
-              aria-label="My airdrops"
-              title="My airdrops"
+              aria-label={t("aria.myAirdrops")}
+              title={t("aria.myAirdrops")}
               className="border-border-strong bg-surface text-fg flex size-8 shrink-0 items-center justify-center rounded-icon border-2 text-sm leading-none"
             >
               <span aria-hidden="true">🧾</span>
             </Link>
+            <LocaleToggle />
             <ThemeToggle />
 
             {/* Both fills carry white text and are checked against 4.5:1 by
@@ -68,7 +74,7 @@ export function BoardHeader({ shortItemCount, isOnline }: BoardHeaderProps) {
                   isOnline ? "animate-blip" : ""
                 }`}
               />
-              {isOnline ? copy.liveLabel : copy.offlineLabel}
+              {isOnline ? t("badge.live") : t("badge.offline")}
             </span>
           </div>
         </div>
@@ -76,9 +82,9 @@ export function BoardHeader({ shortItemCount, isOnline }: BoardHeaderProps) {
         {/* Sentence case, no tracking: caps plus .18em pushed this onto two
             rows at 375px, which is exactly the space we were trying to save. */}
         <p className="text-fg truncate text-xs font-semibold">
-          {brand.tagline}
+          {t("board.tagline")}
           {shortItemCount > 0 &&
-            ` · ${shortItemCount} ${copy.itemsShortSuffix}`}
+            ` · ${t("board.shortSummary", { count: shortItemCount })}`}
         </p>
       </div>
     </div>

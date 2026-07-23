@@ -12,7 +12,6 @@ import { SearchBar } from "@/components/board/search-bar";
 import { ContributeSheet } from "@/components/contribute/contribute-sheet";
 import { RequestItemSheet } from "@/components/request-item/request-item-sheet";
 import { PosterButton } from "@/components/ui/poster-button";
-import { appConfig } from "@/config/app.config";
 import {
   AIRDROP_PAGE_SIZE,
   CATEGORY_FILTER_ALL,
@@ -27,13 +26,14 @@ import {
 } from "@/lib/domain/needs.util";
 import { useBoardQuery } from "@/lib/hooks/use-board-query";
 import { useOnlineStatus } from "@/lib/hooks/use-online-status";
+import { useI18n } from "@/lib/i18n/use-i18n";
 
 const EMPTY_NEEDS: readonly NeedSummary[] = [];
 
 export function AirdropBoard() {
   const { snapshot, isStale, lastUpdatedAt } = useBoardQuery();
   const isOnline = useOnlineStatus();
-  const { copy } = appConfig;
+  const { t } = useI18n();
 
   const [categoryFilter, setCategoryFilter] =
     useState<CategoryFilter>(CATEGORY_FILTER_ALL);
@@ -120,13 +120,13 @@ export function AirdropBoard() {
           <div className="border-border-soft flex flex-col items-center gap-3 rounded-card border-2 border-dashed px-4 py-8 text-center">
             <p className="text-fg-muted text-xs font-semibold">
               {trimmedQuery
-                ? `Nothing matches “${trimmedQuery}”`
-                : "Nothing needed in this category right now"}
+                ? t("board.nothingMatches", { query: trimmedQuery })
+                : t("board.nothingCategory")}
             </p>
             {trimmedQuery && (
               <div className="w-full max-w-xs">
                 <PosterButton onClick={() => setIsRequestOpen(true)}>
-                  {`Request “${trimmedQuery}”`}
+                  {t("board.requestQuoted", { query: trimmedQuery })}
                 </PosterButton>
               </div>
             )}
@@ -149,7 +149,7 @@ export function AirdropBoard() {
                   setVisibleCount((current) => current + AIRDROP_PAGE_SIZE)
                 }
               >
-                {`${copy.loadMoreCta} (${formatQuantity(remainingCount)} left)`}
+                {t("cta.loadMore", { count: formatQuantity(remainingCount) })}
               </PosterButton>
             )}
             <PosterButton
@@ -157,7 +157,7 @@ export function AirdropBoard() {
               onClick={() => setIsRequestOpen(true)}
             >
               <span aria-hidden="true">＋</span>
-              {copy.requestCta}
+              {t("cta.request")}
             </PosterButton>
           </div>
         )}
@@ -165,7 +165,7 @@ export function AirdropBoard() {
 
       <footer className="mx-auto w-full max-w-3xl px-4 pb-8">
         <p className="border-border-soft text-fg-muted border-t pt-4 text-center text-[0.6875rem] leading-relaxed">
-          {copy.footerNote}
+          {t("footer.note")}
         </p>
       </footer>
 

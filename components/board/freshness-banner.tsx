@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { formatRelativeTime } from "@/lib/domain/needs.util";
+import { useI18n } from "@/lib/i18n/use-i18n";
 
 interface FreshnessBannerProps {
   isOnline: boolean;
@@ -25,6 +26,7 @@ export function FreshnessBanner({
   isStale,
   lastUpdatedAt,
 }: FreshnessBannerProps) {
+  const { t } = useI18n();
   // Computed after mount so the prerendered HTML never bakes in a build-time clock.
   const [relativeTime, setRelativeTime] = useState<string | null>(null);
 
@@ -44,8 +46,9 @@ export function FreshnessBanner({
       role="status"
       className="border-border-structure bg-surface-2 text-fg rounded-card border-2 px-3 py-2.5 text-xs font-semibold"
     >
-      {isOnline ? "Showing saved list" : "Offline — showing saved list"}
-      {relativeTime ? ` from ${relativeTime}` : ""}. Will refresh automatically.
+      {isOnline ? t("freshness.savedOnline") : t("freshness.savedOffline")}
+      {relativeTime ? ` ${t("freshness.fromTime", { time: relativeTime })}` : ""}
+      . {t("freshness.willRefresh")}
     </p>
   );
 }

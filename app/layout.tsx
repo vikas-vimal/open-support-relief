@@ -4,6 +4,7 @@ import { Bowlby_One, Inter } from "next/font/google";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ServiceWorkerRegistrar } from "@/components/pwa/service-worker-registrar";
 import { appConfig } from "@/config/app.config";
+import { buildLocaleBootstrapScript } from "@/lib/i18n/config";
 import { buildThemeBootstrapScript, buildThemeCss } from "@/lib/theme/theme-css";
 import "./globals.css";
 
@@ -74,6 +75,11 @@ export default function RootLayout({
             full-screen white flash before the stored choice applies. */}
         <script
           dangerouslySetInnerHTML={{ __html: buildThemeBootstrapScript() }}
+        />
+        {/* Sets <html lang> from the stored locale before paint, so a Hindi
+            page is announced correctly from the first frame. */}
+        <script
+          dangerouslySetInnerHTML={{ __html: buildLocaleBootstrapScript() }}
         />
       </head>
       <body className="bg-canvas text-fg flex min-h-full flex-col">

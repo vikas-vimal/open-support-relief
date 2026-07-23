@@ -1,4 +1,7 @@
+"use client";
+
 import { formatQuantity } from "@/lib/domain/format.util";
+import { useI18n } from "@/lib/i18n/use-i18n";
 
 interface AirdropMeterProps {
   itemName: string;
@@ -26,6 +29,7 @@ export function AirdropMeter({
   qtyFulfilled,
   qtyReserved,
 }: AirdropMeterProps) {
+  const { t } = useI18n();
   const safeRequested = Math.max(1, qtyRequested);
   const fulfilledPercent = Math.min(100, (qtyFulfilled / safeRequested) * 100);
   const reservedPercent = Math.min(
@@ -34,7 +38,9 @@ export function AirdropMeter({
   );
 
   const reservedNote =
-    qtyReserved > 0 ? `, ${formatQuantity(qtyReserved)} being ordered now` : "";
+    qtyReserved > 0
+      ? t("meter.reservedNow", { count: formatQuantity(qtyReserved) })
+      : "";
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -43,7 +49,12 @@ export function AirdropMeter({
         aria-valuenow={Math.round(fulfilledPercent)}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label={`${itemName}: ${formatQuantity(qtyFulfilled)} of ${formatQuantity(qtyRequested)} ${unit} received${reservedNote}`}
+        aria-label={`${t("meter.received", {
+          item: itemName,
+          done: formatQuantity(qtyFulfilled),
+          total: formatQuantity(qtyRequested),
+          unit,
+        })}${reservedNote}`}
         className="border-border-strong bg-meter-track flex h-5 w-full overflow-hidden rounded-card border-2"
       >
         <div
@@ -70,7 +81,7 @@ export function AirdropMeter({
         {qtyReserved > 0 && (
           <span>
             {" · "}
-            {formatQuantity(qtyReserved)} being ordered
+            {t("meter.beingOrdered", { count: formatQuantity(qtyReserved) })}
           </span>
         )}
       </p>

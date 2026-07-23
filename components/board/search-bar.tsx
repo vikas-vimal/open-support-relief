@@ -1,6 +1,6 @@
 "use client";
 
-import { appConfig } from "@/config/app.config";
+import { useI18n } from "@/lib/i18n/use-i18n";
 
 interface SearchBarProps {
   value: string;
@@ -17,6 +17,7 @@ interface SearchBarProps {
  * find an item is the same person about to propose one.
  */
 export function SearchBar({ value, onChange, resultCount }: SearchBarProps) {
+  const { t } = useI18n();
   const hasQuery = value.trim().length > 0;
 
   return (
@@ -31,8 +32,8 @@ export function SearchBar({ value, onChange, resultCount }: SearchBarProps) {
             type="search"
             value={value}
             onChange={(event) => onChange(event.target.value)}
-            placeholder={appConfig.copy.searchPlaceholder}
-            aria-label="Search airdrops"
+            placeholder={t("search.placeholder")}
+            aria-label={t("search.aria")}
             aria-describedby={hasQuery ? "search-result-count" : undefined}
             className="text-fg placeholder:text-fg-muted min-w-0 flex-1 bg-transparent text-sm focus:outline-none [&::-webkit-search-cancel-button]:hidden"
           />
@@ -41,7 +42,7 @@ export function SearchBar({ value, onChange, resultCount }: SearchBarProps) {
             <button
               type="button"
               onClick={() => onChange("")}
-              aria-label="Clear search"
+              aria-label={t("search.clear")}
               className="text-fg-muted hover:text-fg shrink-0 px-1 text-sm leading-none"
             >
               ✕
@@ -56,8 +57,10 @@ export function SearchBar({ value, onChange, resultCount }: SearchBarProps) {
             className="text-fg-muted mt-1.5 px-1 text-[0.6875rem]"
           >
             {resultCount === 0
-              ? "No matching airdrops"
-              : `${resultCount} matching ${resultCount === 1 ? "item" : "items"}`}
+              ? t("search.noMatch")
+              : resultCount === 1
+                ? t("search.matchCountOne")
+                : t("search.matchCount", { count: resultCount })}
           </p>
         )}
       </div>
