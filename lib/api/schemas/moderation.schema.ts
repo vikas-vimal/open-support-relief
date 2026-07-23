@@ -62,6 +62,8 @@ export const reviewResultSchema = z.object({
   needId: z.string().min(1),
   qtyFulfilled: z.number().int().nonnegative(),
   shortfall: z.number().int().nonnegative(),
+  /** When this decision was taken (null after an undo) — drives the undo window. */
+  reviewedAt: z.iso.datetime().nullable(),
 });
 
 export type ReviewResult = z.infer<typeof reviewResultSchema>;

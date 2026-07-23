@@ -2,7 +2,10 @@ import type {
   PendingContribution,
   ReviewResult,
 } from "@/lib/api/schemas/moderation.schema";
-import type { DisputeReason } from "@/lib/domain/airdrop.constants";
+import {
+  UNDO_WINDOW_MINUTES,
+  type DisputeReason,
+} from "@/lib/domain/airdrop.constants";
 import { prisma } from "@/lib/db/prisma";
 import { signProofReadUrl } from "@/lib/server/storage";
 
@@ -29,6 +32,8 @@ export interface DisputeInput {
 
 /** Proofs are kept 7 days past verification, then the purge cron removes them. */
 const VERIFIED_PROOF_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+/** A reopened claim's proof reverts to the 30-day pending cap. */
+const PENDING_PROOF_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
 function shortfallOf(req: number, ful: number, res: number): number {
   return Math.max(0, req - ful - res);
@@ -153,6 +158,7 @@ export async function reviewContribution(
         needId: need.id,
         qtyFulfilled: need.qtyFulfilled,
         shortfall: shortfallOf(need.qtyRequested, need.qtyFulfilled, need.qtyReserved),
+        reviewedAt: reviewedAt.toISOString(),
       };
     }
 
@@ -184,6 +190,7 @@ export async function reviewContribution(
         contribution.need.qtyFulfilled,
         contribution.need.qtyReserved,
       ),
+      reviewedAt: reviewedAt.toISOString(),
     };
   });
 }
@@ -265,6 +272,129 @@ export async function disputeContribution(
       needId: need.id,
       qtyFulfilled: need.qtyFulfilled,
       shortfall: shortfallOf(need.qtyRequested, need.qtyFulfilled, need.qtyReserved),
+      reviewedAt: reviewedAt.toISOString(),
+    };
+  });
+}
+
+/** Undo is only offered for a short window after the decision (§17.4). */
+export class UndoWindowExpiredError extends Error {
+  constructor() {
+    super("Too late to undo — the review has locked");
+    this.name = "UndoWindowExpiredError";
+  }
+}
+
+/** There is no decision to undo (the claim is still pending). */
+export class NothingToUndoError extends Error {
+  constructor() {
+    super("This claim has not been reviewed");
+    this.name = "NothingToUndoError";
+  }
+}
+
+/** Re-applying the reversed decision would push the board past its request. */
+export class UndoOversellError extends Error {
+  constructor() {
+    super("The board has been refilled — cannot undo");
+    this.name = "UndoOversellError";
+  }
+}
+
+/**
+ * Reverts a recent VERIFY / REJECT / DISPUTE back to PENDING (§17.4).
+ *
+ * Only within `UNDO_WINDOW_MINUTES` of the decision, so a late change can't
+ * surprise a supporter. Reverses exactly what the decision did: VERIFY only
+ * reopens (count untouched, proof retention reset to the pending cap); REJECT
+ * and DISPUTE re-add the amount they gave back — refused if that would now
+ * oversell the board, since others may have filled it in the meantime.
+ */
+export async function undoReview(
+  moderatorId: string,
+  contributionId: string,
+): Promise<ReviewResult> {
+  return prisma.$transaction(async (tx) => {
+    const contribution = await tx.contribution.findUnique({
+      where: { id: contributionId },
+      include: { need: true },
+    });
+    if (!contribution) throw new NothingToUndoError();
+    if (contribution.state === "PENDING") throw new NothingToUndoError();
+    if (
+      !contribution.reviewedAt ||
+      Date.now() - contribution.reviewedAt.getTime() >
+        UNDO_WINDOW_MINUTES * 60_000
+    ) {
+      throw new UndoWindowExpiredError();
+    }
+
+    // How much this decision handed back to the board, to re-apply now.
+    const reAdd =
+      contribution.state === "VERIFIED"
+        ? 0
+        : contribution.qtyClaimed - (contribution.qtyReceived ?? 0);
+
+    const { need } = contribution;
+    if (
+      reAdd > 0 &&
+      need.qtyFulfilled + reAdd + need.qtyReserved > need.qtyRequested
+    ) {
+      throw new UndoOversellError();
+    }
+
+    await tx.contribution.update({
+      where: { id: contributionId },
+      data: {
+        state: "PENDING",
+        reviewReason: null,
+        reviewNote: null,
+        qtyReceived: null,
+        reviewedById: null,
+        reviewedAt: null,
+      },
+    });
+
+    let updatedNeed = need;
+    if (reAdd > 0) {
+      updatedNeed = await tx.need.update({
+        where: { id: need.id },
+        data: { qtyFulfilled: { increment: reAdd } },
+      });
+      await tx.needEvent.create({
+        data: {
+          needId: need.id,
+          actorId: moderatorId,
+          delta: reAdd,
+          reason: "REVIEW_UNDONE",
+        },
+      });
+    }
+    // Verified proofs had their retention shortened; reopening restores the cap.
+    await tx.proofImage.updateMany({
+      where: { contributionId },
+      data: { purgeAfter: new Date(Date.now() + PENDING_PROOF_RETENTION_MS) },
+    });
+    await tx.auditLog.create({
+      data: {
+        actorId: moderatorId,
+        action: "REVIEW_UNDO",
+        targetType: "Contribution",
+        targetId: contributionId,
+      },
+    });
+
+    return {
+      contributionId,
+      state: "PENDING" as const,
+      needId: updatedNeed.id,
+      qtyFulfilled: updatedNeed.qtyFulfilled,
+      shortfall: shortfallOf(
+        updatedNeed.qtyRequested,
+        updatedNeed.qtyFulfilled,
+        updatedNeed.qtyReserved,
+      ),
+      reviewedAt: null,
     };
   });
 }

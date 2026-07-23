@@ -15,8 +15,10 @@ type LoadState = "loading" | "ready" | "denied" | "error";
  * Moderator queue for pending contribution claims.
  *
  * Its own page (not the public board), gated server-side — a non-moderator gets
- * 403 and sees the denied state. A card that has been verified/rejected/disputed
- * leaves the queue; the counter change is already committed server-side.
+ * 403 and sees the denied state. A reviewed card stays in place showing its
+ * decision + an Undo (within the window) rather than vanishing, so a mis-click is
+ * immediately recoverable; it only clears on the next load, which returns pending
+ * claims only.
  */
 export function ModerationQueue() {
   const [state, setState] = useState<LoadState>("loading");
@@ -43,8 +45,10 @@ export function ModerationQueue() {
     };
   }, []);
 
-  function dropReviewed(reviewed: PendingContribution): void {
-    setItems((current) => current.filter((row) => row.id !== reviewed.id));
+  function replaceReviewed(reviewed: PendingContribution): void {
+    setItems((current) =>
+      current.map((row) => (row.id === reviewed.id ? reviewed : row)),
+    );
   }
 
   if (state === "loading") {
@@ -74,7 +78,7 @@ export function ModerationQueue() {
         <ContributionReviewCard
           key={item.id}
           item={item}
-          onReviewed={dropReviewed}
+          onReviewed={replaceReviewed}
         />
       ))}
     </ul>

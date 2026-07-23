@@ -9,7 +9,11 @@ import {
   ContributionNotPendingError,
   disputeContribution,
   InvalidDisputeError,
+  NothingToUndoError,
   reviewContribution,
+  undoReview,
+  UndoOversellError,
+  UndoWindowExpiredError,
 } from "@/lib/server/moderation.service";
 import type { ReviewResult } from "@/lib/api/schemas/moderation.schema";
 import { logger } from "@/lib/server/logger";
@@ -44,11 +48,10 @@ export async function POST(
         qtyReceived: decision.qtyReceived,
         note: decision.note,
       });
-    } else if (decision.action === "VERIFY" || decision.action === "REJECT") {
-      result = await reviewContribution(user.id, id, decision.action);
+    } else if (decision.action === "UNDO") {
+      result = await undoReview(user.id, id);
     } else {
-      // UNDO is wired in a later step.
-      return Response.json({ error: "Unsupported action" }, { status: 400 });
+      result = await reviewContribution(user.id, id, decision.action);
     }
     return Response.json(reviewResultSchema.parse(result));
   } catch (error) {
@@ -56,6 +59,15 @@ export async function POST(
       return Response.json({ error: "Already reviewed" }, { status: 409 });
     }
     if (error instanceof InvalidDisputeError) {
+      return Response.json({ error: error.message }, { status: 400 });
+    }
+    if (
+      error instanceof UndoWindowExpiredError ||
+      error instanceof UndoOversellError
+    ) {
+      return Response.json({ error: error.message }, { status: 409 });
+    }
+    if (error instanceof NothingToUndoError) {
       return Response.json({ error: error.message }, { status: 400 });
     }
     logger.error({

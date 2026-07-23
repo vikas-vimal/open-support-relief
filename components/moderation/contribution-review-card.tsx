@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { reviewContribution } from "@/lib/api/moderation.client";
 import type {
@@ -10,6 +10,7 @@ import type {
 import {
   DISPUTE_REASON,
   DISPUTE_REASON_LABEL,
+  UNDO_WINDOW_MINUTES,
   type DisputeReason,
 } from "@/lib/domain/airdrop.constants";
 import { formatQuantity } from "@/lib/domain/format.util";
@@ -45,13 +46,39 @@ export function ContributionReviewCard({
   const [reason, setReason] = useState<DisputeReason | null>(null);
   const [received, setReceived] = useState(0);
   const [error, setError] = useState(false);
+  // Clock lives in state (set after mount, refreshed) so render stays pure and
+  // the Undo affordance disappears once the window passes.
+  const [nowMs, setNowMs] = useState<number | null>(null);
+  useEffect(() => {
+    const tick = (): void => setNowMs(Date.now());
+    // Deferred + interval, so no setState fires synchronously in the effect body.
+    const initial = window.setTimeout(tick, 0);
+    const timer = window.setInterval(tick, 30_000);
+    return () => {
+      window.clearTimeout(initial);
+      window.clearInterval(timer);
+    };
+  }, []);
 
   async function act(action: ReviewAction): Promise<void> {
     setBusy(true);
     setError(false);
     try {
       const result = await reviewContribution(item.id, action);
-      onReviewed({ ...item, state: result.state });
+      // Keep the dispute detail on the row so the decision line stays accurate,
+      // and reset it on undo (back to pending).
+      const detail =
+        action.action === "DISPUTE"
+          ? { reviewReason: action.reason, qtyReceived: action.qtyReceived ?? null }
+          : { reviewReason: null, qtyReceived: null };
+      setDisputing(false);
+      setReason(null);
+      onReviewed({
+        ...item,
+        state: result.state,
+        reviewedAt: result.reviewedAt,
+        ...detail,
+      });
     } catch {
       setError(true);
     } finally {
@@ -70,6 +97,11 @@ export function ContributionReviewCard({
   }
 
   const isPending = item.state === "PENDING";
+  const canUndo =
+    !isPending &&
+    item.reviewedAt !== null &&
+    nowMs !== null &&
+    nowMs - Date.parse(item.reviewedAt) < UNDO_WINDOW_MINUTES * 60_000;
 
   return (
     <li className="border-border-structure bg-surface shadow-poster flex flex-col gap-3 border-2 p-4">
@@ -107,15 +139,27 @@ export function ContributionReviewCard({
       )}
 
       {!isPending && (
-        <p className="text-fg-muted text-xs font-semibold">
-          Decision: {item.state}
-          {item.reviewReason
-            ? ` · ${DISPUTE_REASON_LABEL[item.reviewReason as DisputeReason] ?? item.reviewReason}`
-            : ""}
-          {item.qtyReceived !== null
-            ? ` · ${formatQuantity(item.qtyReceived)} received`
-            : ""}
-        </p>
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-fg-muted text-xs font-semibold">
+            Decision: {item.state}
+            {item.reviewReason
+              ? ` · ${DISPUTE_REASON_LABEL[item.reviewReason as DisputeReason] ?? item.reviewReason}`
+              : ""}
+            {item.qtyReceived !== null
+              ? ` · ${formatQuantity(item.qtyReceived)} received`
+              : ""}
+          </p>
+          {canUndo && (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => act({ action: "UNDO" })}
+              className="border-border-strong text-fg shrink-0 border-2 bg-surface px-3 py-1.5 text-xs font-semibold disabled:opacity-50"
+            >
+              Undo
+            </button>
+          )}
+        </div>
       )}
 
       {isPending && !disputing && (
