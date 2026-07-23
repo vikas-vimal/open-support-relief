@@ -33,6 +33,15 @@ export function BoardHeader({ shortItemCount, isOnline }: BoardHeaderProps) {
           </h1>
 
           <div className="flex shrink-0 items-center gap-2">
+            {/* Public wall of verified supporters — the social-proof hook. */}
+            <Link
+              href="/wall"
+              aria-label="Wall of supporters"
+              title="Wall of supporters"
+              className="border-border-strong bg-surface text-fg flex size-8 shrink-0 items-center justify-center rounded-icon border-2 text-sm leading-none"
+            >
+              <span aria-hidden="true">🏆</span>
+            </Link>
             {/* Supporter's own history — the standard top-right "my stuff" slot. */}
             <Link
               href="/my-airdrops"

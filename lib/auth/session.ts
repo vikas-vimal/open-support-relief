@@ -30,7 +30,17 @@ export async function getAuthedUser(): Promise<AuthedUser | null> {
   };
 }
 
+const VOLUNTEER_ROLES = new Set(["VOLUNTEER", "MODERATOR", "ADMIN"]);
 const MODERATOR_ROLES = new Set(["MODERATOR", "ADMIN"]);
+
+/**
+ * True for VOLUNTEER and up — the on-site roles allowed to manage a site's
+ * operational data, including drop-point addresses. Deliberately broader than
+ * `isModerator`: a volunteer runs the drop but does not review submissions.
+ */
+export function isVolunteer(user: AuthedUser): boolean {
+  return VOLUNTEER_ROLES.has(user.role);
+}
 
 /** True for MODERATOR and ADMIN — the roles allowed to review submissions. */
 export function isModerator(user: AuthedUser): boolean {

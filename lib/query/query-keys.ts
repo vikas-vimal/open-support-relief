@@ -8,6 +8,8 @@ export const BOARD_SCOPE = "active";
 export const queryKeys = {
   board: (scope: string = BOARD_SCOPE) => ["board", scope] as const,
   contributions: (userId: string) => ["contributions", userId] as const,
+  /** Public opt-in wall — safe to fetch, deliberately not persisted to disk. */
+  contributors: () => ["contributors"] as const,
   /** NOT persistable — see below. */
   dropPointReveal: (dropPointId: string) =>
     ["drop-point-reveal", dropPointId] as const,
