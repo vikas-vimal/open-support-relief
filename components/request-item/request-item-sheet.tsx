@@ -86,10 +86,10 @@ export function RequestItemSheet({
       ref={dialogRef}
       onClose={onDismiss}
       aria-labelledby="request-item-title"
-      className="bg-surface text-fg border-border-strong backdrop:bg-fg/60 m-0 mt-auto max-h-[92dvh] w-full max-w-3xl rounded-t-card border-[3px] p-0 sm:mx-auto sm:mb-auto sm:rounded-card"
+      className="bg-surface text-fg border-border-structure backdrop:bg-fg/60 m-0 mt-auto max-h-[92dvh] w-full max-w-3xl rounded-t-card border-[3px] p-0 sm:mx-auto sm:mb-auto sm:rounded-card"
     >
       <div className="flex max-h-[92dvh] flex-col overflow-y-auto">
-        <header className="bg-header-bg border-border-strong sticky top-0 flex items-start justify-between gap-3 border-b-2 px-4 py-3">
+        <header className="bg-header-bg border-border-structure sticky top-0 flex items-start justify-between gap-3 border-b-2 px-4 py-3">
           <div>
             <p className="label-track text-fg text-[0.625rem]">Not on the list?</p>
             <h2
@@ -103,7 +103,7 @@ export function RequestItemSheet({
             type="button"
             onClick={onDismiss}
             aria-label="Close"
-            className="border-border-strong bg-surface text-fg shrink-0 rounded-card border-2 px-2.5 py-1 text-sm leading-none"
+            className="border-border-strong bg-surface text-fg flex size-8 shrink-0 items-center justify-center rounded-icon border-2 text-sm leading-none"
           >
             ✕
           </button>

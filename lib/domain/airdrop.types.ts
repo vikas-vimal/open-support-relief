@@ -24,6 +24,17 @@ export interface NeedSummary {
   updatedAt: string;
 }
 
+/**
+ * A drop point as the PUBLIC board sees it: id and a coarse label only. The
+ * address, recipient name and phone are never part of this shape — they exist
+ * solely in the reveal endpoint's response.
+ */
+export interface DropPointPublic {
+  id: string;
+  /** e.g. "Gate 3 medical tent". Safe to show; not an address. */
+  label: string;
+}
+
 /** Public site metadata. `areaLabel` is intentionally coarse. */
 export interface SiteSummary {
   id: string;
@@ -31,6 +42,8 @@ export interface SiteSummary {
   /** Coarse public location, e.g. "Near Jantar Mantar, Delhi". Never an address. */
   areaLabel: string;
   isFrozen: boolean;
+  /** Active drop points, public fields only — the reveal target(s). */
+  dropPoints: readonly DropPointPublic[];
 }
 
 /**

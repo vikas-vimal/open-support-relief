@@ -1,18 +1,44 @@
+import { boardSnapshotSchema } from "@/lib/api/schemas/board.schema";
 import type { BoardSnapshot } from "@/lib/domain/airdrop.types";
-import { buildMockBoardSnapshot } from "@/lib/mock/needs.mock";
+
+/** The board API failed or returned an unexpected shape. */
+export class BoardFetchError extends Error {
+  constructor(
+    message: string,
+    readonly status?: number,
+  ) {
+    super(message);
+    this.name = "BoardFetchError";
+  }
+}
 
 /**
- * The board's only data-access function — the single place Phase 2 swaps a
- * fixture for the network.
+ * The board's only data-access function, and the single seam React Query calls.
  *
- * Phase 2 body:
- *   const response = await fetch("/api/needs?siteId=...", { signal });
- *   if (!response.ok) throw new BoardFetchError(...);
- *   return boardSnapshotSchema.parse(await response.json());
- *
- * Kept async from day one so callers already handle latency, cancellation and
- * failure, and so the snapshot's timestamps are only ever produced in the browser.
+ * Validates the response against the same Zod schema the route handler emits, so
+ * a contract drift surfaces as a caught error (→ stale-cache fallback) rather
+ * than a malformed render. No mock import here — the seed fallback lives
+ * server-side in the route handler, so it never ships to the client bundle.
  */
-export async function fetchBoardSnapshot(): Promise<BoardSnapshot> {
-  return buildMockBoardSnapshot(new Date());
+export async function fetchBoardSnapshot(
+  signal?: AbortSignal,
+): Promise<BoardSnapshot> {
+  const response = await fetch("/api/needs", {
+    signal,
+    headers: { accept: "application/json" },
+  });
+
+  if (!response.ok) {
+    throw new BoardFetchError(
+      `Board request failed with ${response.status}`,
+      response.status,
+    );
+  }
+
+  const parsed = boardSnapshotSchema.safeParse(await response.json());
+  if (!parsed.success) {
+    throw new BoardFetchError("Board response did not match the expected shape");
+  }
+
+  return parsed.data;
 }

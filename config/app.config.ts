@@ -38,7 +38,20 @@ export interface SchemePalette {
   surface2: string;
   fg: string;
   fgMuted: string;
+  /**
+   * Interactive boundaries — inputs, buttons, chips, the meter track. Must
+   * stay >= 3:1 against `surface` (WCAG 1.4.11): with `surface` only 1.09:1
+   * against `canvas` in dark, this border is the ONLY thing that makes a text
+   * field findable.
+   */
   border: string;
+  /**
+   * Structural boundaries — cards, sheets, the header rule. Free to be subtle
+   * because a card is identified by its content, not its outline. This is what
+   * keeps dark mode reading as material rather than high-contrast.
+   */
+  borderStructure: string;
+  /** Dividers and dashed empty states. Subtlest of the three. */
   borderSoft: string;
   headerBg: string;
   meterTrack: string;
@@ -65,6 +78,12 @@ export interface ShapeTokens {
   radius: string;
   /** Chips and badges — separate so pills can stay pills if wanted. */
   radiusPill: string;
+  /**
+   * Icon-only buttons (theme toggle, sheet close). Kept round even when
+   * everything else is square: a lone glyph in a hard-cornered box reads as a
+   * disabled tile, while a circle reads unmistakably as "tap me".
+   */
+  radiusIcon: string;
 }
 
 export interface AppConfig {
@@ -120,6 +139,7 @@ export const appConfig: AppConfig = {
   shape: {
     radius: "0px",
     radiusPill: "0px",
+    radiusIcon: "999px",
   },
 
   theme: {
@@ -144,7 +164,10 @@ export const appConfig: AppConfig = {
       surface2: "#f5f5f4",
       fg: "#1a1108",
       fgMuted: "#57534e",
+      // Light mode keeps the hard black poster rule for both — on white there
+      // is no harshness problem to solve.
       border: "#1a1108",
+      borderStructure: "#1a1108",
       borderSoft: "#d6d3d1",
       headerBg: "#f4ebd7",
       meterTrack: "#ffffff",
@@ -164,8 +187,11 @@ export const appConfig: AppConfig = {
       surface2: "#292524",
       fg: "#f5f5f4",
       fgMuted: "#a8a29e",
-      border: "#f5f5f4",
-      borderSoft: "#44403c",
+      // Was #f5f5f4 — 16:1 against surface, which is what made dark mode read
+      // as a high-contrast accessibility theme rather than a dark material one.
+      border: "#6b645d", // 3.00:1 — the floor for an identifiable control
+      borderStructure: "#44403c", // 1.70:1 — subtle, cards only
+      borderSoft: "#292524",
       headerBg: "#2a2320",
       meterTrack: "#3f3f46",
       shadow: "#44403c", // black would be invisible against canvas

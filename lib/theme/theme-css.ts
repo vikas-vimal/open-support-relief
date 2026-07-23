@@ -23,6 +23,7 @@ function schemeVariables(palette: SchemePalette): string {
     `--fg:${palette.fg}`,
     `--fg-muted:${palette.fgMuted}`,
     `--border:${palette.border}`,
+    `--border-structure:${palette.borderStructure}`,
     `--border-soft:${palette.borderSoft}`,
     `--header-bg:${palette.headerBg}`,
     `--meter-track:${palette.meterTrack}`,
@@ -57,7 +58,11 @@ function brandVariables(palette: BrandPalette): string {
  */
 export function buildThemeCss(config = appConfig): string {
   const { brand, light, dark } = config.theme;
-  const shape = `--radius-card:${config.shape.radius};--radius-pill:${config.shape.radiusPill}`;
+  const shape = [
+    `--radius-card:${config.shape.radius}`,
+    `--radius-pill:${config.shape.radiusPill}`,
+    `--radius-icon:${config.shape.radiusIcon}`,
+  ].join(";");
 
   return [
     `:root{color-scheme:light;${shape};${brandVariables(brand)};${schemeVariables(light)}}`,

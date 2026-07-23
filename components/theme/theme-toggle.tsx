@@ -22,7 +22,7 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       aria-label={resolvedTheme === null ? "Toggle colour theme" : label}
       title={resolvedTheme === null ? undefined : label}
-      className="border-border-strong bg-surface text-fg flex size-8 shrink-0 items-center justify-center rounded-card border-2 text-xs leading-none"
+      className="border-border-strong bg-surface text-fg flex size-8 shrink-0 items-center justify-center rounded-icon border-2 text-xs leading-none"
     >
       <span aria-hidden="true">
         {resolvedTheme === null ? "◐" : isDark ? "☀️" : "🌙"}

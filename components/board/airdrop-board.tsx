@@ -176,6 +176,7 @@ export function AirdropBoard() {
 
       <ContributeSheet
         need={selectedNeed}
+        dropPoint={snapshot?.site.dropPoints[0] ?? null}
         onDismiss={() => setSelectedNeed(null)}
       />
     </>

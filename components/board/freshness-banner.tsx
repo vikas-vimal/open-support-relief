@@ -42,7 +42,7 @@ export function FreshnessBanner({
   return (
     <p
       role="status"
-      className="border-border-strong bg-surface-2 text-fg rounded-card border-2 px-3 py-2.5 text-xs font-semibold"
+      className="border-border-structure bg-surface-2 text-fg rounded-card border-2 px-3 py-2.5 text-xs font-semibold"
     >
       {isOnline ? "Showing saved list" : "Offline — showing saved list"}
       {relativeTime ? ` from ${relativeTime}` : ""}. Will refresh automatically.

@@ -98,6 +98,17 @@ export const FULFILMENT_PLATFORM_LABEL: Readonly<
 /** How long a contributor's soft reservation holds quantity off the board. */
 export const INTENT_LOCK_TTL_MINUTES = 15;
 
+/**
+ * MIME types the proof-screenshot bucket accepts (verified server-side).
+ * WebP is NOT allowed by the bucket, so images are compressed to JPEG.
+ * Client-safe so both the upload client and the sign schema can share it.
+ */
+export const ALLOWED_PROOF_MIME = ["image/jpeg", "image/png"] as const;
+export type ProofMime = (typeof ALLOWED_PROOF_MIME)[number];
+
+/** Client compresses proof screenshots to at most this before upload. */
+export const PROOF_MAX_SIZE_MB = 0.4;
+
 /** Lifecycle of a publicly proposed item, pending moderator review. */
 export const ITEM_REQUEST_STATE = {
   PENDING_REVIEW: "PENDING_REVIEW",

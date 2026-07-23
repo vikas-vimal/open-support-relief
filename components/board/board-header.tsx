@@ -18,7 +18,7 @@ export function BoardHeader({ shortItemCount, isOnline }: BoardHeaderProps) {
   const { brand, copy } = appConfig;
 
   return (
-    <div className="bg-header-bg border-border-strong border-b-2">
+    <div className="bg-header-bg border-border-structure border-b-2">
       <div className="mx-auto flex max-w-3xl flex-col gap-0.5 px-4 py-3">
         <div className="flex items-center justify-between gap-2">
           {/* The brand name is long and Bowlby One is a wide face — it needs the

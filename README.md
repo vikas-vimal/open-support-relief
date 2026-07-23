@@ -77,11 +77,40 @@ npx vitest run lib/theme/contrast.spec.ts
 That suite fails if any pairing drops below WCAG AA. It is not decoration — it caught that
 `#0099ff` measures 2.9998:1 on white and misses the 3:1 non-text threshold for graphics.
 
+## Database
+
+Prisma 7 with the pg driver adapter, against Supabase Postgres. `schema.prisma` is
+the modelling source and drives `prisma generate` only. Connection URLs live in
+`prisma.config.ts`, read from `.env`.
+
+**Migrations are hand-written SQL, applied manually — never `prisma migrate`.** Every
+schema change is a reviewed, committed `.sql` file in [`db/migrations/`](db/migrations),
+applied in order against the session pooler (`DIRECT_URL`, port 5432 — pgbouncer can't
+run DDL). A `_manual_migrations` table tracks what has been applied.
+
+```bash
+# Author a new migration from the schema (read-only; does NOT touch the DB):
+npm run db:diff > db/migrations/NNNN_description.sql   # then review + edit by hand
+
+# Apply, in order:
+npm run db:apply db/migrations/0001_init.sql
+npm run db:apply db/migrations/0002_ranking_index_and_constraints.sql
+
+npm run db:seed        # load the demo board
+```
+
+If the database is unreachable, `GET /api/needs` serves the seed fixture **in dev only**
+(never production), flagged with an `X-Data-Source: seed-fallback` response header.
+
 ## Roadmap
 
 - [x] Board UI, search, duplicate-guarded item requests, pagination
 - [x] System dark mode + toggle, offline handling, PWA, device caching
-- [ ] Postgres + Prisma schema, REST route handlers
-- [ ] Auth (anonymous + Google), gated drop-point reveal with audit log
-- [ ] Proof upload, moderation queue, contributor wall
+- [x] Prisma schema, `GET /api/needs` with Zod-validated contract
+- [ ] Run the first migration against the live database
+- [x] Auth (anonymous + Google), gated drop-point reveal with audit log
+- [x] Contribution claims (idempotent), intent locks, item-request persistence
+- [x] Proof-screenshot upload (private bucket, presigned PUT, EXIF stripped)
+- [ ] Moderation queue (verify claims + item requests, set drop-point address, freeze)
+- [ ] Contributor wall, in-app blur brush
 - [ ] Hindi localisation, share cards

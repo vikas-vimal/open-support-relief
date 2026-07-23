@@ -18,7 +18,12 @@
   --color-surface-2: var(--surface-2);
   --color-fg: var(--fg);
   --color-fg-muted: var(--fg-muted);
+  /* Three weights, and the distinction is functional, not decorative:
+     `border-strong` is the interactive boundary (>= 3:1, keeps inputs findable),
+     `border-structure` outlines cards and may be subtle,
+     `border-soft` is for dividers and dashed empty states. */
   --color-border-strong: var(--border);
+  --color-border-structure: var(--border-structure);
   --color-border-soft: var(--border-soft);
   --color-header-bg: var(--header-bg);
   --color-meter-track: var(--meter-track);
@@ -39,6 +44,7 @@
      a 2px ink border and a hard offset shadow reads as printed matter. */
   --radius-card: var(--radius-card);
   --radius-pill: var(--radius-pill);
+  --radius-icon: var(--radius-icon);
 
   --shadow-poster-sm: 3px 3px 0 var(--shadow-color);
   --shadow-poster: 6px 6px 0 var(--shadow-color);

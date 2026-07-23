@@ -1,0 +1,293 @@
+// Airdrops for Cockroaches — domain schema.
+//
+// Runtime uses the pgbouncer pooler (DATABASE_URL); migrations use the
+// session-mode pooler (DIRECT_URL), because pgbouncer transaction mode cannot
+// run DDL.
+//
+// Auth tables (User sessions, accounts) are owned by better-auth and added by
+// its own migration later. `User` here is the minimal profile the domain needs;
+// better-auth's Prisma adapter extends the same table.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Prisma 7: connection URLs live in prisma.config.ts, not here. The runtime
+// client connects through the pg driver adapter (lib/db/prisma.ts); migrations
+// use the DIRECT_URL configured in prisma.config.ts.
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  PUBLIC
+  VOLUNTEER
+  MODERATOR
+  ADMIN
+}
+
+enum Urgency {
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum ClaimState {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum RequestState {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  MERGED
+}
+
+// Owned jointly by the domain and better-auth: the first block is better-auth's
+// core user shape, the second is ours. better-auth's Prisma adapter reads/writes
+// this table; the anonymous plugin flips `isAnonymous`.
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Domain fields.
+  role        Role    @default(PUBLIC)
+  displayName String?
+  showOnWall  Boolean @default(false)
+  isAnonymous Boolean @default(false) // anonymous plugin sets true on anon sign-in
+
+  sessions      Session[]
+  accounts      Account[]
+  contributions Contribution[]
+  itemRequests  ItemRequest[]
+}
+
+// better-auth session. IP tracking is disabled in lib/auth/auth.ts (data
+// minimisation), so `ipAddress` stays null; the column exists because
+// better-auth's schema requires it.
+model Session {
+  id        String   @id
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// better-auth OAuth / credential accounts.
+model Account {
+  id                    String    @id
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// better-auth verification tokens.
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+model Site {
+  id         String      @id @default(cuid())
+  name       String
+  areaLabel  String // PUBLIC coarse location, e.g. "Near Jantar Mantar, Delhi". Never an address.
+  isActive   Boolean     @default(true)
+  isFrozen   Boolean     @default(false) // kill switch: hides every drop point instantly
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  dropPoints DropPoint[]
+  needs      Need[]
+
+  @@index([isActive])
+}
+
+model DropPoint {
+  id             String   @id @default(cuid())
+  siteId         String
+  label          String // PUBLIC, e.g. "Gate 3 medical tent"
+  fullAddress    String // GATED — reveal endpoint only
+  recipientName  String // GATED
+  recipientPhone String // GATED
+  instructions   String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  site           Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId, isActive])
+}
+
+// Canonical catalogue — prevents "water"/"Water bottles"/"paani" fragmenting demand.
+model SupplyItem {
+  id           String @id @default(cuid())
+  name         String @unique
+  normalized   String @unique // dedupe key, from normalizeItemName()
+  unit         String
+  category     String
+  requestCount Int    @default(0) // popularity, powers the volunteer picker
+  needs        Need[]
+
+  @@index([category])
+}
+
+// One row per (site, item) — a board row.
+model Need {
+  id           String   @id @default(cuid())
+  siteId       String
+  itemId       String
+  qtyRequested Int
+  qtyFulfilled Int      @default(0) // includes PENDING claims
+  qtyReserved  Int      @default(0) // held by unexpired intent locks
+  urgency      Urgency  @default(NORMAL)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  site          Site           @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  item          SupplyItem     @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  contributions Contribution[]
+  intents       Intent[]
+  events        NeedEvent[]
+
+  // shortfall = max(0, qtyRequested - qtyFulfilled - qtyReserved) is computed at
+  // read time (never stored), so it can never drift from the counters. The
+  // supporting functional index is added in prisma/sql/post-migration.sql.
+  @@unique([siteId, itemId])
+  @@index([siteId, isActive, urgency])
+}
+
+// Append-only audit of every counter change.
+model NeedEvent {
+  id        String   @id @default(cuid())
+  needId    String
+  actorId   String
+  delta     Int
+  reason    String
+  createdAt DateTime @default(now())
+  need      Need     @relation(fields: [needId], references: [id], onDelete: Cascade)
+
+  @@index([needId, createdAt])
+}
+
+model Contribution {
+  id             String       @id @default(cuid())
+  needId         String
+  userId         String
+  qtyClaimed     Int
+  platform       String // BLINKIT ZEPTO SWIGGY ZOMATO AMAZON OTHER
+  orderRef       String?
+  state          ClaimState   @default(PENDING)
+  idempotencyKey String       @unique // offline retries must not double-count
+  reviewedById   String?
+  reviewedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  need           Need         @relation(fields: [needId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  proofs         ProofImage[]
+
+  @@index([needId, state])
+  @@index([userId])
+}
+
+model ProofImage {
+  id             String       @id @default(cuid())
+  contributionId String
+  storagePath    String // private bucket key; served only via short-lived signed URLs
+  purgeAfter     DateTime // auto-delete 7 days after verification
+  createdAt      DateTime     @default(now())
+  contribution   Contribution @relation(fields: [contributionId], references: [id], onDelete: Cascade)
+
+  @@index([purgeAfter])
+}
+
+// Soft reservation, 15-min TTL — stops ten people ordering the same 150 raincoats.
+model Intent {
+  id        String   @id @default(cuid())
+  needId    String
+  userId    String
+  qty       Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  need      Need     @relation(fields: [needId], references: [id], onDelete: Cascade)
+
+  @@index([needId])
+  @@index([expiresAt])
+}
+
+// Publicly proposed item, held for moderator review.
+model ItemRequest {
+  id               String       @id @default(cuid())
+  siteId           String
+  proposedName     String
+  normalizedName   String // server-side dedupe guard
+  unit             String
+  category         String
+  qtyRequested     Int
+  note             String?
+  requestedById    String
+  state            RequestState @default(PENDING_REVIEW)
+  mergedIntoNeedId String?
+  createdAt        DateTime     @default(now())
+  reviewedAt       DateTime?
+  requestedBy      User         @relation(fields: [requestedById], references: [id], onDelete: Cascade)
+
+  @@index([siteId, state])
+  @@index([siteId, normalizedName])
+}
+
+// Postgres token bucket for rate limiting, no extra infra.
+model RateLimit {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String
+  windowStart DateTime
+  count       Int      @default(0)
+
+  @@unique([userId, action, windowStart])
+  @@index([windowStart])
+}
+
+// Audit trail for privileged actions (reveal, freeze, moderation).
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  action     String
+  targetType String
+  targetId   String
+  meta       Json?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([targetType, targetId])
+}

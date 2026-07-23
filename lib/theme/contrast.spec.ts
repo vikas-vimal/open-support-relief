@@ -56,6 +56,33 @@ describe.each([
       AA_NON_TEXT,
     );
   });
+
+  it("interactive border keeps controls identifiable (WCAG 1.4.11)", () => {
+    /*
+     * This is the one that must not be softened for looks. `surface` sits only
+     * ~1.09:1 against `canvas` in dark, so this border is the sole thing that
+     * makes a text input findable. Drop it below 3:1 and the search box
+     * effectively disappears.
+     */
+    expect(contrastRatio(palette.border, palette.surface)).toBeGreaterThanOrEqual(
+      AA_NON_TEXT,
+    );
+    expect(contrastRatio(palette.border, palette.canvas)).toBeGreaterThanOrEqual(
+      AA_NON_TEXT,
+    );
+  });
+
+  it("structural border is visible but softer than the interactive one", () => {
+    const structural = contrastRatio(palette.borderStructure, palette.surface);
+
+    // Visible at all — a card outline that vanishes is not a card outline.
+    expect(structural).toBeGreaterThan(1.2);
+    // Never *stronger* than the control border, or the hierarchy inverts and
+    // decorative card edges shout louder than the inputs.
+    expect(structural).toBeLessThanOrEqual(
+      contrastRatio(palette.border, palette.surface),
+    );
+  });
 });
 
 describe("brand colours (fixed across both schemes)", () => {

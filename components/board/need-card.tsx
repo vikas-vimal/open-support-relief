@@ -19,7 +19,7 @@ export function NeedCard({ need, onContribute }: NeedCardProps) {
   const isSatisfied = need.shortfall === 0;
 
   return (
-    <article className="border-border-strong bg-surface flex flex-col gap-3 rounded-card border-2 p-4 shadow-poster">
+    <article className="border-border-structure bg-surface flex flex-col gap-3 rounded-card border-2 p-4 shadow-poster">
       <header className="flex items-start justify-between gap-3">
         <h3 className="text-fg font-display text-lg leading-tight tracking-tight uppercase">
           {need.itemName}

@@ -26,7 +26,8 @@ interface BoardQueryResult {
 export function useBoardQuery(): BoardQueryResult {
   const query = useQuery({
     queryKey: queryKeys.board(BOARD_SCOPE),
-    queryFn: fetchBoardSnapshot,
+    // Forward React Query's AbortSignal so a superseded refetch is cancelled.
+    queryFn: ({ signal }) => fetchBoardSnapshot(signal),
   });
 
   return {

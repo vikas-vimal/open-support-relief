@@ -29,6 +29,7 @@ const MOCK_SITE: SiteSummary = {
   name: "Jantar Mantar",
   areaLabel: "Near Jantar Mantar, New Delhi",
   isFrozen: false,
+  dropPoints: [{ id: "dp_seed_gate3", label: "Gate 3 medical tent" }],
 };
 
 const MOCK_NEED_SEEDS: readonly MockNeedSeed[] = [
