@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { AirdropShareButton } from "@/components/my-airdrops/airdrop-share-button";
+import { DeleteAccountButton } from "@/components/my-airdrops/delete-account-button";
 import { StatusBadge } from "@/components/my-airdrops/status-badge";
 import { authClient, useSession } from "@/lib/auth/auth-client";
 import { FULFILMENT_PLATFORM_LABEL } from "@/lib/domain/airdrop.constants";
@@ -109,6 +110,8 @@ export function MyAirdrops() {
           ))}
         </ul>
       )}
+
+      {session?.user && <DeleteAccountButton />}
     </div>
   );
 }

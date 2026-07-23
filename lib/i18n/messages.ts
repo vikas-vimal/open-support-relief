@@ -95,6 +95,13 @@ const en = {
   "mine.confirmed": "confirmed {time}",
   "mine.shareCard": "Share card 🪂",
   "mine.preparing": "Preparing…",
+  "mine.deleteTitle": "Delete my account & data",
+  "mine.deleteBody":
+    "Removes your account, your airdrop history and any proof screenshots. This can't be undone.",
+  "mine.deleteButton": "Delete everything",
+  "mine.deleteConfirm": "Tap again to confirm — this is permanent",
+  "mine.deleting": "Deleting…",
+  "mine.deleteError": "Could not delete. Please try again.",
 
   "status.pending": "Awaiting check",
   "status.verified": "Verified",
@@ -271,6 +278,13 @@ const hi: Record<MessageKey, string> = {
   "mine.confirmed": "{time} पुष्टि हुई",
   "mine.shareCard": "कार्ड शेयर करें 🪂",
   "mine.preparing": "तैयार हो रहा है…",
+  "mine.deleteTitle": "मेरा खाता और डेटा हटाएँ",
+  "mine.deleteBody":
+    "आपका खाता, एयरड्रॉप इतिहास और कोई भी प्रूफ़ स्क्रीनशॉट हटा देता है। इसे पूर्ववत नहीं किया जा सकता।",
+  "mine.deleteButton": "सब कुछ हटाएँ",
+  "mine.deleteConfirm": "पुष्टि के लिए फिर टैप करें — यह स्थायी है",
+  "mine.deleting": "हटाया जा रहा है…",
+  "mine.deleteError": "हटाया नहीं जा सका। कृपया फिर कोशिश करें।",
 
   "status.pending": "जाँच बाकी",
   "status.verified": "सत्यापित",
