@@ -206,6 +206,7 @@ model Contribution {
   userId         String
   qtyClaimed     Int
   platform       String // BLINKIT ZEPTO SWIGGY ZOMATO AMAZON OTHER
+  platformOther  String? // free-text vendor name, set only when platform = OTHER
   orderRef       String?
   state          ClaimState   @default(PENDING)
   idempotencyKey String       @unique // offline retries must not double-count

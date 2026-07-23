@@ -32,11 +32,14 @@ const ORDER_STEPS: readonly string[] = [
   "Come back and confirm",
 ];
 
+/** Preset platform buttons. OTHER is not here — it's the free-text input. */
 const PLATFORM_ORDER: readonly FulfilmentPlatform[] = [
   "BLINKIT",
   "ZEPTO",
   "SWIGGY",
   "ZOMATO",
+  "AMAZON",
+  "FLIPKART",
 ];
 
 /**
@@ -54,6 +57,8 @@ export function ContributeSheet({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [quantity, setQuantity] = useState<number>(1);
   const [platform, setPlatform] = useState<FulfilmentPlatform>("BLINKIT");
+  /** Free-text vendor name. Non-empty means the user chose "Other". */
+  const [otherPlatform, setOtherPlatform] = useState<string>("");
   const [showName, setShowName] = useState<boolean>(false);
   const [proofStoragePath, setProofStoragePath] = useState<string | null>(null);
   const {
@@ -78,6 +83,7 @@ export function ContributeSheet({
     if (need && !dialog.open) {
       setQuantity(Math.min(10, need.shortfall));
       setPlatform("BLINKIT");
+      setOtherPlatform("");
       setShowName(false);
       setProofStoragePath(null);
       resetReveal(); // never carry a revealed address across items
@@ -250,22 +256,48 @@ export function ContributeSheet({
                       Which app did you order through?
                     </p>
                     <div className="grid grid-cols-2 gap-2">
-                      {PLATFORM_ORDER.map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() => setPlatform(option)}
-                          aria-pressed={platform === option}
-                          className={`rounded-card border-2 border-border-strong px-3 py-3 text-xs font-semibold ${
-                            platform === option
-                              ? "bg-fg text-canvas"
-                              : "bg-surface text-fg"
-                          }`}
-                        >
-                          {FULFILMENT_PLATFORM_LABEL[option]}
-                        </button>
-                      ))}
+                      {PLATFORM_ORDER.map((option, index) => {
+                        // A preset is active only when no custom name is typed.
+                        const isActive =
+                          otherPlatform.trim() === "" && platform === option;
+                        // Last item on an odd-length grid spans the full row.
+                        const spanFull =
+                          index === PLATFORM_ORDER.length - 1 &&
+                          PLATFORM_ORDER.length % 2 === 1;
+                        return (
+                          <button
+                            key={option}
+                            type="button"
+                            onClick={() => {
+                              setPlatform(option);
+                              setOtherPlatform("");
+                            }}
+                            aria-pressed={isActive}
+                            className={`rounded-card border-2 border-border-strong px-3 py-3 text-xs font-semibold ${
+                              spanFull ? "col-span-2" : ""
+                            } ${isActive ? "bg-fg text-canvas" : "bg-surface text-fg"}`}
+                          >
+                            {FULFILMENT_PLATFORM_LABEL[option]}
+                          </button>
+                        );
+                      })}
                     </div>
+
+                    {/* Catch-all: any other app or shop. Typing here selects
+                        OTHER and deselects the presets above. */}
+                    <input
+                      type="text"
+                      value={otherPlatform}
+                      onChange={(event) => setOtherPlatform(event.target.value)}
+                      maxLength={40}
+                      aria-label="Other app or shop name"
+                      placeholder="Other — type the app or shop (e.g. Dunzo)"
+                      className={`mt-2 w-full rounded-card border-2 px-3 py-3 text-sm placeholder:text-fg-muted focus:outline-none ${
+                        otherPlatform.trim() !== ""
+                          ? "border-border-strong bg-fg text-canvas placeholder:text-canvas/60"
+                          : "border-border-strong bg-surface text-fg"
+                      }`}
+                    />
                   </div>
 
                   <ProofUpload onUploaded={setProofStoragePath} />
@@ -283,15 +315,19 @@ export function ContributeSheet({
                   <PosterButton
                     size="lg"
                     disabled={submitStatus === "working"}
-                    onClick={() =>
+                    onClick={() => {
+                      // A typed custom name wins and maps to OTHER; otherwise
+                      // the selected preset stands.
+                      const custom = otherPlatform.trim();
                       doSubmit({
                         needId: need.id,
                         qty: quantity,
-                        platform,
+                        platform: custom ? "OTHER" : platform,
+                        platformOther: custom || undefined,
                         showName,
                         proofStoragePath: proofStoragePath ?? undefined,
-                      })
-                    }
+                      });
+                    }}
                   >
                     {submitStatus === "working"
                       ? "Sending…"
@@ -307,8 +343,7 @@ export function ContributeSheet({
                     </p>
                   ) : (
                     <p className="text-center text-[0.6875rem] leading-relaxed text-fg-muted">
-                      Proof-screenshot upload lands next. For now this counts as
-                      pending until a volunteer verifies it.
+                      This counts as pending until a volunteer verifies it.
                     </p>
                   )}
                 </>

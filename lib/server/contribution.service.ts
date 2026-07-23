@@ -87,6 +87,8 @@ export async function claimContribution(
           userId,
           qtyClaimed: input.qty,
           platform: input.platform,
+          platformOther:
+            input.platform === "OTHER" ? input.platformOther : null,
           orderRef: input.orderRef,
           idempotencyKey,
           state: "PENDING",

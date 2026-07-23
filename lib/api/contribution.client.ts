@@ -9,6 +9,8 @@ export interface ContributionDraft {
   needId: string;
   qty: number;
   platform: FulfilmentPlatform;
+  /** Vendor name when platform is OTHER. */
+  platformOther?: string;
   orderRef?: string;
   showName: boolean;
   /** Storage key of an uploaded proof screenshot, if any. */

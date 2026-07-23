@@ -110,7 +110,17 @@ If the database is unreachable, `GET /api/needs` serves the seed fixture **in de
 - [ ] Run the first migration against the live database
 - [x] Auth (anonymous + Google), gated drop-point reveal with audit log
 - [x] Contribution claims (idempotent), intent locks, item-request persistence
-- [x] Proof-screenshot upload (private bucket, presigned PUT, EXIF stripped)
-- [ ] Moderation queue (verify claims + item requests, set drop-point address, freeze)
-- [ ] Contributor wall, in-app blur brush
+- [x] Proof-screenshot upload (private bucket, presigned PUT, EXIF stripped, in-app blur)
+- [x] Moderation console (`/moderate`): verify/reject claims (reject restores the counter), freeze kill switch
+- [ ] Moderate item requests (approve/merge/reject), edit drop-point address
+- [ ] Contributor wall
 - [ ] Hindi localisation, share cards
+
+### Granting a moderator
+
+There is no self-serve role UI yet. Promote a signed-in user by their id:
+
+```sql
+UPDATE "User" SET role = 'MODERATOR' WHERE id = '<user-id>';  -- or 'ADMIN' for the freeze switch
+```
+`/moderate` is gated server-side; a non-moderator gets a 403 and the denied state.

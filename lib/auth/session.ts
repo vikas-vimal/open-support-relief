@@ -29,3 +29,14 @@ export async function getAuthedUser(): Promise<AuthedUser | null> {
     isAnonymous: user.isAnonymous ?? false,
   };
 }
+
+const MODERATOR_ROLES = new Set(["MODERATOR", "ADMIN"]);
+
+/** True for MODERATOR and ADMIN — the roles allowed to review submissions. */
+export function isModerator(user: AuthedUser): boolean {
+  return MODERATOR_ROLES.has(user.role);
+}
+
+export function isAdmin(user: AuthedUser): boolean {
+  return user.role === "ADMIN";
+}
