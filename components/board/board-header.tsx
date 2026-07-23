@@ -1,9 +1,5 @@
 "use client";
 
-import Link from "next/link";
-
-import { LocaleToggle } from "@/components/i18n/locale-toggle";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { appConfig } from "@/config/app.config";
 import { useI18n } from "@/lib/i18n/use-i18n";
 
@@ -38,26 +34,9 @@ export function BoardHeader({ shortItemCount, isOnline }: BoardHeaderProps) {
           </h1>
 
           <div className="flex shrink-0 items-center gap-2">
-            {/* Public wall of verified supporters — the social-proof hook. */}
-            <Link
-              href="/wall"
-              aria-label={t("aria.wall")}
-              title={t("aria.wall")}
-              className="border-border-strong bg-surface text-fg flex size-8 shrink-0 items-center justify-center rounded-icon border-2 text-sm leading-none"
-            >
-              <span aria-hidden="true">🏆</span>
-            </Link>
-            {/* Supporter's own history — the standard top-right "my stuff" slot. */}
-            <Link
-              href="/my-airdrops"
-              aria-label={t("aria.myAirdrops")}
-              title={t("aria.myAirdrops")}
-              className="border-border-strong bg-surface text-fg flex size-8 shrink-0 items-center justify-center rounded-icon border-2 text-sm leading-none"
-            >
-              <span aria-hidden="true">🧾</span>
-            </Link>
-            <LocaleToggle />
-            <ThemeToggle />
+            {/* Navigation, theme, language and sign-in moved into the sub-header
+                menu (BoardMenu). The header keeps only the wordmark and the
+                connectivity badge, which is status rather than an action. */}
 
             {/* Both fills carry white text and are checked against 4.5:1 by
                 lib/theme/contrast.spec.ts. The dot only blips when genuinely

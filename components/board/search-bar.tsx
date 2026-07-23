@@ -1,11 +1,15 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import { useI18n } from "@/lib/i18n/use-i18n";
 
 interface SearchBarProps {
   value: string;
   onChange: (next: string) => void;
   resultCount: number;
+  /** Leading control in the sub-header row (the board menu). */
+  menu?: ReactNode;
 }
 
 /**
@@ -16,14 +20,21 @@ interface SearchBarProps {
  * behind an icon because it doubles as the duplicate guard: someone who cannot
  * find an item is the same person about to propose one.
  */
-export function SearchBar({ value, onChange, resultCount }: SearchBarProps) {
+export function SearchBar({
+  value,
+  onChange,
+  resultCount,
+  menu,
+}: SearchBarProps) {
   const { t } = useI18n();
   const hasQuery = value.trim().length > 0;
 
   return (
     <div className="bg-canvas border-border-soft border-b">
       <div className="mx-auto max-w-3xl px-4 py-2.5">
-        <div className="border-border-strong bg-surface flex items-center gap-2 rounded-pill border-2 px-3.5 py-2">
+        <div className="flex items-center gap-2">
+          {menu}
+          <div className="border-border-strong bg-surface flex flex-1 items-center gap-2 rounded-pill border-2 px-3.5 py-2">
           <span aria-hidden="true" className="text-sm">
             🔎
           </span>
@@ -48,6 +59,7 @@ export function SearchBar({ value, onChange, resultCount }: SearchBarProps) {
               ✕
             </button>
           )}
+          </div>
         </div>
 
         {hasQuery && (

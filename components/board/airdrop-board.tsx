@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { BoardHeader } from "@/components/board/board-header";
+import { BoardMenu } from "@/components/board/board-menu";
 import { BoardSkeleton } from "@/components/board/board-skeleton";
 import { CategoryFilterBar } from "@/components/board/category-filter";
 import { FreshnessBanner } from "@/components/board/freshness-banner";
@@ -102,6 +103,7 @@ export function AirdropBoard() {
           value={searchQuery}
           onChange={setSearchQuery}
           resultCount={matchingNeeds.length}
+          menu={<BoardMenu />}
         />
       </div>
 
