@@ -1,12 +1,12 @@
 import { headers } from "next/headers";
 
 import { auth } from "@/lib/auth/auth";
+import type { AuthedUser } from "@/lib/auth/roles";
 
-export interface AuthedUser {
-  id: string;
-  role: string;
-  isAnonymous: boolean;
-}
+// Re-exported so existing importers keep using `@/lib/auth/session`; the pure
+// role logic lives in ./roles so it can be unit-tested without a database.
+export type { AuthedUser } from "@/lib/auth/roles";
+export { isAdmin, isModerator, isVolunteer } from "@/lib/auth/roles";
 
 /**
  * Resolves the current user inside a route handler, or null if unauthenticated.
@@ -28,25 +28,4 @@ export async function getAuthedUser(): Promise<AuthedUser | null> {
     role: user.role ?? "PUBLIC",
     isAnonymous: user.isAnonymous ?? false,
   };
-}
-
-const VOLUNTEER_ROLES = new Set(["VOLUNTEER", "MODERATOR", "ADMIN"]);
-const MODERATOR_ROLES = new Set(["MODERATOR", "ADMIN"]);
-
-/**
- * True for VOLUNTEER and up — the on-site roles allowed to manage a site's
- * operational data, including drop-point addresses. Deliberately broader than
- * `isModerator`: a volunteer runs the drop but does not review submissions.
- */
-export function isVolunteer(user: AuthedUser): boolean {
-  return VOLUNTEER_ROLES.has(user.role);
-}
-
-/** True for MODERATOR and ADMIN — the roles allowed to review submissions. */
-export function isModerator(user: AuthedUser): boolean {
-  return MODERATOR_ROLES.has(user.role);
-}
-
-export function isAdmin(user: AuthedUser): boolean {
-  return user.role === "ADMIN";
 }

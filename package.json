@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:integration": "INTEGRATION_DB=1 vitest run integration.spec",
     "db:generate": "prisma generate",
     "db:diff": "prisma migrate diff --from-schema-datasource prisma/schema.prisma --to-schema prisma/schema.prisma --script",
     "db:apply": "psql \"$DIRECT_URL\" -v ON_ERROR_STOP=1 -f",
