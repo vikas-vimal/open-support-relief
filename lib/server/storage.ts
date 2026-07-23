@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -93,4 +94,49 @@ export async function signProofReadUrl(storagePath: string): Promise<string> {
     new GetObjectCommand({ Bucket: bucket(), Key: storagePath }),
     { expiresIn: READ_URL_TTL_SECONDS },
   );
+}
+
+/** Thrown when an object could not be removed AND was not already absent. */
+export class ProofDeleteError extends Error {
+  constructor(
+    readonly storagePath: string,
+    cause: unknown,
+  ) {
+    super(`Failed to delete proof object ${storagePath}`);
+    this.name = "ProofDeleteError";
+    this.cause = cause;
+  }
+}
+
+/**
+ * Permanently removes a proof object from the bucket.
+ *
+ * Treats an already-absent object (`NoSuchKey` / 404) as success — the goal is
+ * "these pixels are gone", and something that was never there satisfies that.
+ * Any other failure throws, so the caller can keep the DB row and retry rather
+ * than delete the row while the object survives (which would orphan a screenshot
+ * of someone's address forever — the exact §7 failure this prevents).
+ */
+export async function deleteProofObject(storagePath: string): Promise<void> {
+  try {
+    await s3Client().send(
+      new DeleteObjectCommand({ Bucket: bucket(), Key: storagePath }),
+    );
+  } catch (error) {
+    const code =
+      typeof error === "object" && error !== null && "name" in error
+        ? String((error as { name: unknown }).name)
+        : "";
+    const status =
+      typeof error === "object" &&
+      error !== null &&
+      "$metadata" in error &&
+      typeof (error as { $metadata?: { httpStatusCode?: number } }).$metadata
+        ?.httpStatusCode === "number"
+        ? (error as { $metadata: { httpStatusCode: number } }).$metadata
+            .httpStatusCode
+        : undefined;
+    if (code === "NoSuchKey" || code === "NotFound" || status === 404) return;
+    throw new ProofDeleteError(storagePath, error);
+  }
 }
