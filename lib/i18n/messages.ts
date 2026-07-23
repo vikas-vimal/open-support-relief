@@ -109,6 +109,13 @@ const en = {
   "status.rejected": "Not accepted",
   "status.disputed": "Problem flagged",
 
+  "dispute.MISSING_QTY": "Some items missing",
+  "dispute.FRAUD": "Flagged as fraud",
+  "dispute.QUALITY": "Quality issue",
+  "dispute.NOT_RECEIVED": "Not received",
+  "dispute.OTHER": "Other issue",
+  "mine.partlyReceived": "{received} of {claimed} received",
+
   "contribute.sending": "You are sending",
   "contribute.close": "Close",
   "contribute.howMany": "How many? ({count} still needed)",
@@ -297,6 +304,13 @@ const hi: Record<MessageKey, string> = {
   "status.verified": "सत्यापित",
   "status.rejected": "स्वीकार नहीं हुआ",
   "status.disputed": "समस्या दर्ज हुई",
+
+  "dispute.MISSING_QTY": "कुछ चीज़ें कम मिलीं",
+  "dispute.FRAUD": "धोखाधड़ी के रूप में चिह्नित",
+  "dispute.QUALITY": "गुणवत्ता की समस्या",
+  "dispute.NOT_RECEIVED": "प्राप्त नहीं हुआ",
+  "dispute.OTHER": "अन्य समस्या",
+  "mine.partlyReceived": "{claimed} में से {received} मिले",
 
   "contribute.sending": "आप भेज रहे हैं",
   "contribute.close": "बंद करें",

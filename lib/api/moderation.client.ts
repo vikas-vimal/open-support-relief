@@ -2,6 +2,7 @@ import {
   moderationQueueResponseSchema,
   reviewResultSchema,
   type PendingContribution,
+  type ReviewAction,
   type ReviewResult,
 } from "@/lib/api/schemas/moderation.schema";
 
@@ -33,12 +34,12 @@ export async function fetchPendingContributions(): Promise<PendingContribution[]
 
 export async function reviewContribution(
   id: string,
-  action: "VERIFY" | "REJECT",
+  action: ReviewAction,
 ): Promise<ReviewResult> {
   const response = await fetch(`/api/moderation/contributions/${id}`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ action }),
+    body: JSON.stringify(action),
   });
   if (!response.ok) {
     throw new ModerationError(

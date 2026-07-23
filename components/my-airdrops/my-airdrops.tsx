@@ -10,6 +10,7 @@ import { FULFILMENT_PLATFORM_LABEL } from "@/lib/domain/airdrop.constants";
 import { formatQuantity } from "@/lib/domain/format.util";
 import { formatRelativeTime } from "@/lib/domain/needs.util";
 import { useMyContributions } from "@/lib/hooks/use-my-contributions";
+import type { MessageKey } from "@/lib/i18n/messages";
 import { useI18n } from "@/lib/i18n/use-i18n";
 
 function platformName(platform: string, platformOther: string | null): string {
@@ -104,6 +105,17 @@ export function MyAirdrops() {
               {item.receiverCode && (
                 <p className="text-fg-muted font-mono text-[0.6875rem]">
                   {t("mine.code", { code: item.receiverCode })}
+                </p>
+              )}
+              {item.state === "DISPUTED" && item.reviewReason && (
+                <p className="text-danger text-xs font-semibold">
+                  {t(`dispute.${item.reviewReason}` as MessageKey)}
+                  {item.reviewReason === "MISSING_QTY" &&
+                    item.qtyReceived !== null &&
+                    ` · ${t("mine.partlyReceived", {
+                      received: item.qtyReceived,
+                      claimed: item.qtyClaimed,
+                    })}`}
                 </p>
               )}
               <AirdropShareButton
