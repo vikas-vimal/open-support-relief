@@ -5,6 +5,7 @@ import { useCallback } from "react";
 
 import { fetchBoardSnapshot } from "@/lib/api/board.client";
 import type { BoardSnapshot } from "@/lib/domain/airdrop.types";
+import { BOARD_REFETCH_INTERVAL } from "@/lib/query/query-client";
 import { BOARD_SCOPE, queryKeys } from "@/lib/query/query-keys";
 
 interface BoardQueryResult {
@@ -30,6 +31,8 @@ export function useBoardQuery(siteId?: string): BoardQueryResult {
     queryKey: queryKeys.board(siteId ?? BOARD_SCOPE),
     // Forward React Query's AbortSignal so a superseded refetch is cancelled.
     queryFn: ({ signal }) => fetchBoardSnapshot(signal, siteId),
+    // Keep the counters live while the tab is open (paused when hidden).
+    refetchInterval: BOARD_REFETCH_INTERVAL,
   });
 
   return {

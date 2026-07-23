@@ -7,6 +7,15 @@ const DAY = 24 * 60 * MINUTE;
 export const BOARD_STALE_TIME = 30 * 1000;
 
 /**
+ * Poll the board while the tab is visible, so counters stay live without a
+ * websocket. This is the plan's deliberate choice over Supabase Realtime: a
+ * small JSON GET every 30s is cheap on 2G, whereas a persistent socket is not.
+ * It pauses when the tab is hidden (refetchIntervalInBackground stays false),
+ * and focus/reconnect refetches cover the gap on return.
+ */
+export const BOARD_REFETCH_INTERVAL = 30 * 1000;
+
+/**
  * Must be >= the persister's maxAge, or React Query garbage-collects entries
  * that the persister is still restoring, and the offline cache silently empties.
  */
