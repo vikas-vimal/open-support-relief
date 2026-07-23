@@ -3,6 +3,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { anonymous } from "better-auth/plugins";
 
 import { prisma } from "@/lib/db/prisma";
+import { migrateAnonymousData } from "@/lib/server/account-migration.service";
 
 /**
  * Server-side auth. Mounted at /api/auth (see app/api/auth/[...all]/route.ts).
@@ -28,20 +29,12 @@ export const auth = betterAuth({
     anonymous({
       /*
        * When an anonymous user later signs in with Google, carry their pledged
-       * contributions and item requests over to the real account before the
-       * anonymous row is deleted — otherwise their history vanishes on upgrade.
+       * contributions, item requests and wall opt-in over to the real account
+       * before the anonymous row is deleted — otherwise their history vanishes
+       * on upgrade. See migrateAnonymousData for the (tested) details.
        */
       onLinkAccount: async ({ anonymousUser, newUser }) => {
-        await prisma.$transaction([
-          prisma.contribution.updateMany({
-            where: { userId: anonymousUser.user.id },
-            data: { userId: newUser.user.id },
-          }),
-          prisma.itemRequest.updateMany({
-            where: { requestedById: anonymousUser.user.id },
-            data: { requestedById: newUser.user.id },
-          }),
-        ]);
+        await migrateAnonymousData(anonymousUser.user.id, newUser.user.id);
       },
     }),
   ],
