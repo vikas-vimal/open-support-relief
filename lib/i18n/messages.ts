@@ -106,6 +106,7 @@ const en = {
   "status.pending": "Awaiting check",
   "status.verified": "Verified",
   "status.rejected": "Not accepted",
+  "status.disputed": "Problem flagged",
 
   "contribute.sending": "You are sending",
   "contribute.close": "Close",
@@ -289,6 +290,7 @@ const hi: Record<MessageKey, string> = {
   "status.pending": "जाँच बाकी",
   "status.verified": "सत्यापित",
   "status.rejected": "स्वीकार नहीं हुआ",
+  "status.disputed": "समस्या दर्ज हुई",
 
   "contribute.sending": "आप भेज रहे हैं",
   "contribute.close": "बंद करें",

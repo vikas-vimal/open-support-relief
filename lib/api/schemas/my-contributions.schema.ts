@@ -8,8 +8,8 @@ export const myContributionSchema = z.object({
   qtyClaimed: z.number().int().positive(),
   platform: z.string().min(1),
   platformOther: z.string().nullable(),
-  /** PENDING → awaiting a volunteer; VERIFIED → confirmed; REJECTED → not accepted. */
-  state: z.enum(["PENDING", "VERIFIED", "REJECTED"]),
+  /** PENDING → awaiting; VERIFIED → confirmed; REJECTED → not accepted; DISPUTED → problem flagged. */
+  state: z.enum(["PENDING", "VERIFIED", "REJECTED", "DISPUTED"]),
   createdAt: z.iso.datetime(),
   reviewedAt: z.iso.datetime().nullable(),
 });

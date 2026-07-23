@@ -36,6 +36,7 @@ enum ClaimState {
   PENDING
   VERIFIED
   REJECTED
+  DISPUTED // moderator flagged a problem with the received parcel
 }
 
 enum RequestState {
@@ -208,7 +209,11 @@ model Contribution {
   platform       String // BLINKIT ZEPTO SWIGGY ZOMATO AMAZON OTHER
   platformOther  String? // free-text vendor name, set only when platform = OTHER
   orderRef       String?
+  receiverCode   String?      @unique // parcel matching code the supporter sets as the delivery recipient name
   state          ClaimState   @default(PENDING)
+  reviewReason   String? // dispute reason (DISPUTE_REASON) when state = DISPUTED
+  reviewNote     String? // optional moderator note on a dispute
+  qtyReceived    Int? // for a Missing-qty dispute: how many actually arrived
   idempotencyKey String       @unique // offline retries must not double-count
   reviewedById   String?
   reviewedAt     DateTime?
@@ -219,6 +224,8 @@ model Contribution {
 
   @@index([needId, state])
   @@index([userId])
+  @@index([createdAt])
+  @@index([platform])
 }
 
 model ProofImage {

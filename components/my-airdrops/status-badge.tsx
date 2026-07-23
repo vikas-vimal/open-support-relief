@@ -16,6 +16,7 @@ const BADGE: Readonly<Record<ClaimState, { key: MessageKey; className: string }>
     PENDING: { key: "status.pending", className: "border-warn text-warn" },
     VERIFIED: { key: "status.verified", className: "border-success text-success" },
     REJECTED: { key: "status.rejected", className: "border-danger text-danger" },
+    DISPUTED: { key: "status.disputed", className: "border-danger text-danger" },
   };
 
 export function StatusBadge({ state }: { state: ClaimState }) {

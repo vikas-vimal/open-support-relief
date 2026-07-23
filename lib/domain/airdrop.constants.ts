@@ -138,3 +138,36 @@ export const MAX_DUPLICATE_SUGGESTIONS = 3;
  * "load more" still works with the connection off.
  */
 export const AIRDROP_PAGE_SIZE = 8;
+
+/**
+ * Parcel matching code the supporter sets as the delivery recipient's NAME.
+ * Alphabet excludes visually ambiguous characters (0/O, 1/I/L) so a moderator
+ * reading it off a parcel can't mistype it. ~29^8 ≈ 5e11 space, so a collision
+ * is negligible; `Contribution.receiverCode` unique is the hard backstop.
+ */
+export const RECEIVER_CODE_PREFIX = "CJP-";
+export const RECEIVER_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+export const RECEIVER_CODE_LENGTH = 8;
+
+/** Reasons a moderator can flag a received parcel. */
+export const DISPUTE_REASON = {
+  MISSING_QTY: "MISSING_QTY",
+  FRAUD: "FRAUD",
+  QUALITY: "QUALITY",
+  NOT_RECEIVED: "NOT_RECEIVED",
+  OTHER: "OTHER",
+} as const;
+
+export type DisputeReason =
+  (typeof DISPUTE_REASON)[keyof typeof DISPUTE_REASON];
+
+export const DISPUTE_REASON_LABEL: Readonly<Record<DisputeReason, string>> = {
+  [DISPUTE_REASON.MISSING_QTY]: "Missing quantity",
+  [DISPUTE_REASON.FRAUD]: "Fraud",
+  [DISPUTE_REASON.QUALITY]: "Quality issue",
+  [DISPUTE_REASON.NOT_RECEIVED]: "Not received",
+  [DISPUTE_REASON.OTHER]: "Other",
+};
+
+/** A review decision can be reversed only within this window (§17.4). */
+export const UNDO_WINDOW_MINUTES = 15;
