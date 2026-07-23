@@ -4,10 +4,12 @@ import { PosterButton } from "@/components/ui/poster-button";
 import { AirdropMeter } from "@/components/ui/airdrop-meter";
 import { UrgencyStamp } from "@/components/ui/urgency-stamp";
 import { appConfig } from "@/config/app.config";
+import { shareContent } from "@/lib/client/share";
 import {
   formatCompactQuantity,
   formatQuantity,
 } from "@/lib/domain/format.util";
+import { buildNeedShareText } from "@/lib/domain/share.util";
 import type { NeedSummary } from "@/lib/domain/airdrop.types";
 
 interface NeedCardProps {
@@ -18,13 +20,38 @@ interface NeedCardProps {
 export function NeedCard({ need, onContribute }: NeedCardProps) {
   const isSatisfied = need.shortfall === 0;
 
+  function handleShare(): void {
+    const content = buildNeedShareText(
+      {
+        itemName: need.itemName,
+        shortfall: need.shortfall,
+        unit: need.unit,
+        brandName: appConfig.brand.name,
+        tagline: appConfig.brand.tagline,
+      },
+      window.location.origin,
+    );
+    void shareContent(content);
+  }
+
   return (
     <article className="border-border-structure bg-surface flex flex-col gap-3 rounded-card border-2 p-4 shadow-poster">
       <header className="flex items-start justify-between gap-3">
         <h3 className="text-fg font-display text-lg leading-tight tracking-tight uppercase">
           {need.itemName}
         </h3>
-        <UrgencyStamp urgency={need.urgency} />
+        <div className="flex shrink-0 items-center gap-2">
+          <UrgencyStamp urgency={need.urgency} />
+          <button
+            type="button"
+            onClick={handleShare}
+            aria-label={`${appConfig.copy.shareCta} ${need.itemName}`}
+            title={appConfig.copy.shareCta}
+            className="border-border-strong bg-surface text-fg flex size-8 items-center justify-center rounded-icon border-2 text-sm leading-none"
+          >
+            <span aria-hidden="true">🔗</span>
+          </button>
+        </div>
       </header>
 
       <AirdropMeter

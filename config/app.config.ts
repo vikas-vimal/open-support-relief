@@ -109,6 +109,7 @@ export interface AppConfig {
     searchPlaceholder: string;
     itemsShortSuffix: string;
     stillNeededLabel: string;
+    shareCta: string;
     footerNote: string;
   };
   shape: ShapeTokens;
@@ -138,6 +139,7 @@ export const appConfig: AppConfig = {
     searchPlaceholder: "Search airdrops…",
     itemsShortSuffix: "items short",
     stillNeededLabel: "Still needed",
+    shareCta: "Share",
     footerNote:
       "Airdrops are ordered by you, through your own delivery app. This board never handles money and never shows who is at the site.",
   },
