@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { AirdropShareButton } from "@/components/my-airdrops/airdrop-share-button";
 import { StatusBadge } from "@/components/my-airdrops/status-badge";
 import { authClient, useSession } from "@/lib/auth/auth-client";
 import { FULFILMENT_PLATFORM_LABEL } from "@/lib/domain/airdrop.constants";
@@ -98,6 +99,11 @@ export function MyAirdrops() {
                   item.reviewedAt &&
                   ` · confirmed ${formatRelativeTime(item.reviewedAt, new Date())}`}
               </p>
+              <AirdropShareButton
+                qty={item.qtyClaimed}
+                unit={item.unit}
+                itemName={item.itemName}
+              />
             </li>
           ))}
         </ul>
