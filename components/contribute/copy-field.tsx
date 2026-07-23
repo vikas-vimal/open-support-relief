@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { useI18n } from "@/lib/i18n/use-i18n";
+
 interface CopyFieldProps {
   label: string;
   value: string;
@@ -18,6 +20,7 @@ interface CopyFieldProps {
  */
 export function CopyField({ label, value, action }: CopyFieldProps) {
   const [copied, setCopied] = useState(false);
+  const { t } = useI18n();
 
   async function copy(): Promise<void> {
     try {
@@ -49,10 +52,10 @@ export function CopyField({ label, value, action }: CopyFieldProps) {
           <button
             type="button"
             onClick={copy}
-            aria-label={`Copy ${label}`}
+            aria-label={t("copy.copyAria", { label })}
             className="border-2 border-border-strong bg-primary px-2.5 py-1 text-xs font-semibold text-brand-ink"
           >
-            {copied ? "Copied" : "Copy"}
+            {copied ? t("copy.copied") : t("copy.copy")}
           </button>
         </div>
       </div>

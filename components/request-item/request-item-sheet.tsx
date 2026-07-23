@@ -8,12 +8,12 @@ import { formatQuantity } from "@/lib/domain/format.util";
 import {
   AIRDROP_CATEGORY,
   AIRDROP_CATEGORY_EMOJI,
-  AIRDROP_CATEGORY_LABEL,
   AIRDROP_CATEGORY_ORDER,
   type AirdropCategory,
 } from "@/lib/domain/airdrop.constants";
 import type { NeedSummary } from "@/lib/domain/airdrop.types";
 import { useSubmitItemRequest } from "@/lib/hooks/use-submit-item-request";
+import { useI18n } from "@/lib/i18n/use-i18n";
 
 interface RequestItemSheetProps {
   isOpen: boolean;
@@ -45,6 +45,7 @@ export function RequestItemSheet({
   onDismiss,
   onViewExisting,
 }: RequestItemSheetProps) {
+  const { t } = useI18n();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const submitRequest = useSubmitItemRequest();
 
@@ -91,18 +92,20 @@ export function RequestItemSheet({
       <div className="flex max-h-[92dvh] flex-col overflow-y-auto">
         <header className="bg-header-bg border-border-structure sticky top-0 flex items-start justify-between gap-3 border-b-2 px-4 py-3">
           <div>
-            <p className="label-track text-fg text-[0.625rem]">Not on the list?</p>
+            <p className="label-track text-fg text-[0.625rem]">
+              {t("request.notOnList")}
+            </p>
             <h2
               id="request-item-title"
               className="text-fg font-display text-lg leading-tight uppercase"
             >
-              Request an item
+              {t("request.title")}
             </h2>
           </div>
           <button
             type="button"
             onClick={onDismiss}
-            aria-label="Close"
+            aria-label={t("contribute.close")}
             className="border-border-strong bg-surface text-fg flex size-8 shrink-0 items-center justify-center rounded-icon border-2 text-sm leading-none"
           >
             ✕
@@ -114,12 +117,15 @@ export function RequestItemSheet({
             <p className="text-3xl" aria-hidden="true">
               📋
             </p>
-            <p className="label-track text-fg text-sm">Sent for review</p>
-            <p className="text-fg-muted mx-auto max-w-xs text-xs leading-relaxed">
-              A volunteer at the site will check this and add it to the board.
-              New items are reviewed before they appear publicly.
+            <p className="label-track text-fg text-sm">
+              {t("request.sentTitle")}
             </p>
-            <PosterButton onClick={onDismiss}>Done</PosterButton>
+            <p className="text-fg-muted mx-auto max-w-xs text-xs leading-relaxed">
+              {t("request.sentBody")}
+            </p>
+            <PosterButton onClick={onDismiss}>
+              {t("contribute.done")}
+            </PosterButton>
           </div>
         ) : (
           <div className="flex flex-col gap-5 px-4 py-4">
@@ -128,14 +134,14 @@ export function RequestItemSheet({
                 htmlFor="request-item-name"
                 className="label-track text-fg-muted text-xs"
               >
-                What is needed?
+                {t("request.whatNeeded")}
               </label>
               <input
                 id="request-item-name"
                 type="text"
                 value={itemName}
                 onChange={(event) => setItemName(event.target.value)}
-                placeholder="e.g. Gumboots"
+                placeholder={t("request.namePlaceholder")}
                 autoComplete="off"
                 className="border-border-strong bg-surface text-fg placeholder:text-fg-muted rounded-card border-2 px-3 py-3 text-base focus:outline-none"
               />
@@ -145,7 +151,7 @@ export function RequestItemSheet({
               {duplicates.length > 0 && (
                 <div className="border-accent bg-meter-soft/15 flex flex-col gap-2 rounded-card border-2 p-3">
                   <p className="label-track text-accent text-[0.625rem]">
-                    Already on the board
+                    {t("request.alreadyBoard")}
                   </p>
                   <ul className="flex list-none flex-col gap-1.5">
                     {duplicates.map(({ need }) => (
@@ -156,29 +162,35 @@ export function RequestItemSheet({
                           /* Explicit label: the visible text is split across
                              two spans, so screen readers otherwise announce a
                              concatenation that reads as one run-on string. */
-                          aria-label={`View ${need.itemName}, ${formatQuantity(need.shortfall)} still needed`}
+                          aria-label={t("request.viewAria", {
+                            item: need.itemName,
+                            count: formatQuantity(need.shortfall),
+                          })}
                           className="border-border-soft bg-surface text-fg hover:bg-surface-2 flex w-full items-center justify-between gap-2 rounded-card border px-3 py-2 text-left text-sm"
                         >
                           <span className="truncate font-semibold">
                             {need.itemName}
                           </span>
                           <span className="text-fg-muted shrink-0 font-mono text-xs tabular-nums">
-                            {formatQuantity(need.shortfall)} short →
+                            {t("request.short", {
+                              count: formatQuantity(need.shortfall),
+                            })}
                           </span>
                         </button>
                       </li>
                     ))}
                   </ul>
                   <p className="text-fg-muted text-[0.6875rem] leading-relaxed">
-                    Send one of these instead of adding a duplicate — it keeps
-                    the counts accurate.
+                    {t("request.sendInstead")}
                   </p>
                 </div>
               )}
             </section>
 
             <section className="flex flex-col gap-2">
-              <span className="label-track text-fg-muted text-xs">Category</span>
+              <span className="label-track text-fg-muted text-xs">
+                {t("request.category")}
+              </span>
               <div className="grid grid-cols-3 gap-2">
                 {AIRDROP_CATEGORY_ORDER.map((option) => (
                   <button
@@ -195,7 +207,7 @@ export function RequestItemSheet({
                     <span aria-hidden="true">
                       {AIRDROP_CATEGORY_EMOJI[option]}
                     </span>
-                    {AIRDROP_CATEGORY_LABEL[option]}
+                    {t(`category.${option}`)}
                   </button>
                 ))}
               </div>
@@ -207,7 +219,7 @@ export function RequestItemSheet({
                   htmlFor="request-item-qty"
                   className="label-track text-fg-muted text-xs"
                 >
-                  How many?
+                  {t("request.howMany")}
                 </label>
                 <input
                   id="request-item-qty"
@@ -226,7 +238,7 @@ export function RequestItemSheet({
                   htmlFor="request-item-unit"
                   className="label-track text-fg-muted text-xs"
                 >
-                  Unit
+                  {t("request.unit")}
                 </label>
                 <select
                   id="request-item-unit"
@@ -248,14 +260,14 @@ export function RequestItemSheet({
                 htmlFor="request-item-note"
                 className="label-track text-fg-muted text-xs"
               >
-                Why is it needed? (optional)
+                {t("request.whyNeeded")}
               </label>
               <textarea
                 id="request-item-note"
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
                 rows={2}
-                placeholder="Helps the volunteer decide quickly"
+                placeholder={t("request.notePlaceholder")}
                 className="border-border-strong bg-surface text-fg placeholder:text-fg-muted resize-none rounded-card border-2 px-3 py-2.5 text-sm focus:outline-none"
               />
             </section>
@@ -277,7 +289,9 @@ export function RequestItemSheet({
                   )
                 }
               >
-                {submitRequest.isPending ? "Sending…" : "Send request"}
+                {submitRequest.isPending
+                  ? t("contribute.sendingBtn")
+                  : t("request.send")}
               </PosterButton>
 
               {submitRequest.isError && (
@@ -285,12 +299,11 @@ export function RequestItemSheet({
                   role="alert"
                   className="border-danger text-danger rounded-card border-2 px-3 py-2 text-center text-xs font-semibold"
                 >
-                  Could not send. It will retry — check your connection.
+                  {t("request.error")}
                 </p>
               )}
               <p className="text-fg-muted text-center text-[0.6875rem] leading-relaxed">
-                Goes to a volunteer for review before it appears on the board.
-                Never post personal details here.
+                {t("request.footer")}
               </p>
             </div>
           </div>

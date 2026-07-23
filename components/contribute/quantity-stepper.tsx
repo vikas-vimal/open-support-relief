@@ -1,6 +1,7 @@
 "use client";
 
 import { formatQuantity } from "@/lib/domain/format.util";
+import { useI18n } from "@/lib/i18n/use-i18n";
 
 interface QuantityStepperProps {
   value: number;
@@ -22,6 +23,7 @@ export function QuantityStepper({
   onChange,
   unit,
 }: QuantityStepperProps) {
+  const { t } = useI18n();
   const clamp = (next: number): number => Math.min(max, Math.max(1, next));
 
   return (
@@ -31,14 +33,14 @@ export function QuantityStepper({
           type="button"
           onClick={() => onChange(clamp(value - STEP))}
           disabled={value <= 1}
-          aria-label={`Decrease quantity by ${STEP}`}
+          aria-label={t("qty.decrease", { step: STEP })}
           className="poster-press size-14 shrink-0 rounded-card border-2 border-border-strong bg-surface text-2xl leading-none text-fg shadow-poster-sm disabled:opacity-40 disabled:shadow-none"
         >
           −
         </button>
 
         <label className="flex flex-1 flex-col items-center justify-center rounded-card border-2 border-border-strong bg-surface-2">
-          <span className="sr-only">Quantity to send</span>
+          <span className="sr-only">{t("qty.srLabel")}</span>
           <input
             type="number"
             inputMode="numeric"
@@ -57,7 +59,7 @@ export function QuantityStepper({
           type="button"
           onClick={() => onChange(clamp(value + STEP))}
           disabled={value >= max}
-          aria-label={`Increase quantity by ${STEP}`}
+          aria-label={t("qty.increase", { step: STEP })}
           className="poster-press size-14 shrink-0 rounded-card border-2 border-border-strong bg-primary text-2xl leading-none text-brand-ink shadow-poster-sm disabled:opacity-40 disabled:shadow-none"
         >
           +
@@ -86,7 +88,7 @@ export function QuantityStepper({
             value === max ? "bg-fg text-canvas" : "bg-surface text-fg"
           }`}
         >
-          All {formatQuantity(max)}
+          {t("qty.all", { count: formatQuantity(max) })}
         </button>
       </div>
     </div>

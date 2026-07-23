@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 
 import { ProofBlurEditor } from "@/components/contribute/proof-blur-editor";
 import { uploadProof, UploadError } from "@/lib/api/upload.client";
+import { useI18n } from "@/lib/i18n/use-i18n";
 
 interface ProofUploadProps {
   onUploaded: (storagePath: string | null) => void;
@@ -24,6 +25,7 @@ export function ProofUpload({ onUploaded }: ProofUploadProps) {
   const [editingFile, setEditingFile] = useState<File | null>(null);
   const [state, setState] = useState<UploadState>("idle");
   const [error, setError] = useState<string | null>(null);
+  const { t } = useI18n();
 
   async function upload(file: File): Promise<void> {
     setState("working");
@@ -37,7 +39,7 @@ export function ProofUpload({ onUploaded }: ProofUploadProps) {
       setError(
         uploadError instanceof UploadError
           ? uploadError.message
-          : "Upload failed",
+          : t("proof.uploadFailed"),
       );
       setState("error");
     }
@@ -46,8 +48,7 @@ export function ProofUpload({ onUploaded }: ProofUploadProps) {
   return (
     <div className="flex flex-col gap-2">
       <p className="text-[0.6875rem] leading-relaxed text-fg-muted">
-        Optional: add a screenshot of your order as proof. You&apos;ll blur any
-        personal details before it uploads.
+        {t("proof.hint")}
       </p>
 
       <input
@@ -71,10 +72,10 @@ export function ProofUpload({ onUploaded }: ProofUploadProps) {
         className="rounded-card border-2 border-dashed border-border-strong bg-surface px-3 py-3 text-sm font-semibold text-fg disabled:opacity-60"
       >
         {state === "working"
-          ? "Uploading…"
+          ? t("proof.uploading")
           : state === "done"
-            ? "✓ Proof added — tap to replace"
-            : "Add proof screenshot"}
+            ? t("proof.added")
+            : t("proof.addProof")}
       </button>
 
       {state === "error" && error && (

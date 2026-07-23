@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { useI18n } from "@/lib/i18n/use-i18n";
+
 interface ProofBlurEditorProps {
   file: File;
   onConfirm: (redacted: File) => void;
@@ -39,6 +41,7 @@ export function ProofBlurEditor({
 
   const [ready, setReady] = useState(false);
   const [touched, setTouched] = useState(false);
+  const { t } = useI18n();
 
   // Load the image, size the canvas, and prepare the blurred source.
   useEffect(() => {
@@ -168,18 +171,15 @@ export function ProofBlurEditor({
     <dialog
       ref={dialogRef}
       onClose={onCancel}
-      aria-label="Blur private details on your screenshot"
+      aria-label={t("blur.aria")}
       className="m-0 h-dvh max-h-none w-full max-w-none border-0 bg-canvas p-0 text-fg backdrop:bg-fg/70"
     >
       <div className="flex h-dvh flex-col">
         <header className="border-b-2 border-border-structure bg-header-bg px-4 py-3">
           <h2 className="font-display text-base leading-tight text-fg uppercase">
-            Blur private details
+            {t("blur.title")}
           </h2>
-          <p className="mt-0.5 text-xs text-fg-muted">
-            Drag over your name, phone and address to blur them. This happens on
-            your phone — the clear version is never uploaded.
-          </p>
+          <p className="mt-0.5 text-xs text-fg-muted">{t("blur.body")}</p>
         </header>
 
         <div className="flex flex-1 items-center justify-center overflow-auto bg-surface-2 p-3">
@@ -200,7 +200,7 @@ export function ProofBlurEditor({
             onClick={onCancel}
             className="flex-1 border-2 border-border-strong bg-surface px-4 py-3 text-sm font-semibold text-fg"
           >
-            Cancel
+            {t("blur.cancel")}
           </button>
           <button
             type="button"
@@ -208,7 +208,7 @@ export function ProofBlurEditor({
             disabled={!ready}
             className="flex-1 border-2 border-border-strong bg-primary px-4 py-3 text-sm font-semibold text-brand-ink disabled:opacity-50"
           >
-            {touched ? "Use blurred image" : "Looks clean — use it"}
+            {touched ? t("blur.useBlurred") : t("blur.looksClean")}
           </button>
         </footer>
       </div>

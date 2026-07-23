@@ -14,6 +14,8 @@ import {
 import type { DropPointPublic, NeedSummary } from "@/lib/domain/airdrop.types";
 import { useRevealDropPoint } from "@/lib/hooks/use-reveal-drop-point";
 import { useSubmitContribution } from "@/lib/hooks/use-submit-contribution";
+import type { MessageKey } from "@/lib/i18n/messages";
+import { useI18n } from "@/lib/i18n/use-i18n";
 
 interface ContributeSheetProps {
   need: NeedSummary | null;
@@ -26,10 +28,10 @@ function whatsappHref(phone: string): string {
   return `https://wa.me/${phone.replace(/[^\d]/g, "")}`;
 }
 
-const ORDER_STEPS: readonly string[] = [
-  "Copy the drop address",
-  "Order it in your delivery app",
-  "Come back and confirm",
+const ORDER_STEP_KEYS: readonly MessageKey[] = [
+  "contribute.step1",
+  "contribute.step2",
+  "contribute.step3",
 ];
 
 /** Preset platform buttons. OTHER is not here — it's the free-text input. */
@@ -54,6 +56,7 @@ export function ContributeSheet({
   dropPoint,
   onDismiss,
 }: ContributeSheetProps) {
+  const { t } = useI18n();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [quantity, setQuantity] = useState<number>(1);
   const [platform, setPlatform] = useState<FulfilmentPlatform>("BLINKIT");
@@ -106,7 +109,7 @@ export function ContributeSheet({
           <header className="sticky top-0 flex items-start justify-between gap-3 border-b-2 border-border-structure bg-header-bg px-4 py-3">
             <div>
               <p className="label-track text-[0.625rem] text-fg">
-                You are sending
+                {t("contribute.sending")}
               </p>
               <h2
                 id="contribute-sheet-title"
@@ -118,7 +121,7 @@ export function ContributeSheet({
             <button
               type="button"
               onClick={onDismiss}
-              aria-label="Close"
+              aria-label={t("contribute.close")}
               className="flex size-8 shrink-0 items-center justify-center rounded-icon border-2 border-border-strong bg-surface text-sm leading-none text-fg"
             >
               ✕
@@ -128,7 +131,9 @@ export function ContributeSheet({
           <div className="flex flex-col gap-5 px-4 py-4">
             <section className="flex flex-col gap-2">
               <h3 className="label-track text-xs text-fg-muted">
-                How many? ({formatQuantity(need.shortfall)} still needed)
+                {t("contribute.howMany", {
+                  count: formatQuantity(need.shortfall),
+                })}
               </h3>
               <QuantityStepper
                 value={quantity}
@@ -139,15 +144,26 @@ export function ContributeSheet({
             </section>
 
             <section className="flex flex-col gap-2">
-              <h3 className="label-track text-xs text-fg-muted">Where to send</h3>
+              <h3 className="label-track text-xs text-fg-muted">
+                {t("contribute.whereToSend")}
+              </h3>
 
               {revealStatus === "revealed" && reveal ? (
                 <div className="flex flex-col gap-2">
-                  <CopyField label="Drop point" value={reveal.label} />
-                  <CopyField label="Address" value={reveal.fullAddress} />
-                  <CopyField label="Recipient" value={reveal.recipientName} />
                   <CopyField
-                    label="Phone"
+                    label={t("contribute.fieldDropPoint")}
+                    value={reveal.label}
+                  />
+                  <CopyField
+                    label={t("contribute.fieldAddress")}
+                    value={reveal.fullAddress}
+                  />
+                  <CopyField
+                    label={t("contribute.fieldRecipient")}
+                    value={reveal.recipientName}
+                  />
+                  <CopyField
+                    label={t("contribute.fieldPhone")}
                     value={reveal.recipientPhone}
                     action={{
                       href: whatsappHref(reveal.recipientPhone),
@@ -169,12 +185,14 @@ export function ContributeSheet({
                       🔒
                     </p>
                     <p className="label-track text-xs text-fg-muted">
-                      {dropPoint ? "Drop point hidden" : "No drop point yet"}
+                      {dropPoint
+                        ? t("contribute.dropHidden")
+                        : t("contribute.noDropYet")}
                     </p>
                     <p className="mx-auto mt-1.5 max-w-xs text-xs leading-relaxed text-fg-muted">
                       {dropPoint
-                        ? "The address and volunteer contact are only shown to signed-in supporters. This keeps volunteers safe."
-                        : "A volunteer hasn't published a drop point for this site yet."}
+                        ? t("contribute.hiddenBody")
+                        : t("contribute.noDropBody")}
                     </p>
                   </div>
 
@@ -184,8 +202,8 @@ export function ContributeSheet({
                     onClick={() => dropPoint && doReveal(dropPoint.id)}
                   >
                     {revealStatus === "working"
-                      ? "Revealing…"
-                      : "Reveal drop point"}
+                      ? t("contribute.revealing")
+                      : t("contribute.revealCta")}
                   </PosterButton>
 
                   {revealStatus === "error" && revealError ? (
@@ -197,7 +215,7 @@ export function ContributeSheet({
                     </p>
                   ) : (
                     <p className="text-center text-[0.6875rem] text-fg-muted">
-                      One tap, no personal details needed.
+                      {t("contribute.revealHint")}
                     </p>
                   )}
                 </>
@@ -205,23 +223,24 @@ export function ContributeSheet({
             </section>
 
             <section className="flex flex-col gap-2">
-              <h3 className="label-track text-xs text-fg-muted">How it works</h3>
+              <h3 className="label-track text-xs text-fg-muted">
+                {t("contribute.howItWorks")}
+              </h3>
               <ol className="flex flex-col gap-2">
-                {ORDER_STEPS.map((step, index) => (
-                  <li key={step} className="flex items-center gap-3">
+                {ORDER_STEP_KEYS.map((stepKey, index) => (
+                  <li key={stepKey} className="flex items-center gap-3">
                     <span
                       aria-hidden="true"
                       className="flex size-7 shrink-0 items-center justify-center rounded-pill border-2 border-border-strong bg-surface font-mono text-xs font-bold"
                     >
                       {index + 1}
                     </span>
-                    <span className="text-sm text-fg-muted">{step}</span>
+                    <span className="text-sm text-fg-muted">{t(stepKey)}</span>
                   </li>
                 ))}
               </ol>
               <p className="mt-1 text-[0.6875rem] leading-relaxed text-fg-muted">
-                Delivery apps cannot be handed an address by us, so you paste it
-                in yourself. We never take your money — you pay the app directly.
+                {t("contribute.moneyNote")}
               </p>
             </section>
 
@@ -233,27 +252,30 @@ export function ContributeSheet({
                   </p>
                   <p className="label-track text-sm text-fg">
                     {submitResult.deduplicated
-                      ? "Already counted — thank you"
-                      : "Airdrop counted — thank you"}
+                      ? t("contribute.alreadyCounted")
+                      : t("contribute.counted")}
                   </p>
                   <p className="text-xs leading-relaxed text-fg-muted">
-                    {formatCompactQuantity(submitResult.shortfall)} of{" "}
-                    {need.itemName} still needed. A volunteer verifies proof
-                    before it is final.
+                    {t("contribute.countedBody", {
+                      count: formatCompactQuantity(submitResult.shortfall),
+                      item: need.itemName,
+                    })}
                   </p>
                   <div className="w-full max-w-xs pt-1">
-                    <PosterButton onClick={onDismiss}>Done</PosterButton>
+                    <PosterButton onClick={onDismiss}>
+                      {t("contribute.done")}
+                    </PosterButton>
                   </div>
                 </div>
               ) : (
                 <>
                   <h3 className="label-track text-xs text-fg-muted">
-                    Confirm you&apos;ve sent it
+                    {t("contribute.confirmSent")}
                   </h3>
 
                   <div>
                     <p className="mb-1.5 text-[0.6875rem] font-semibold text-fg-muted">
-                      Which app did you order through?
+                      {t("contribute.whichApp")}
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                       {PLATFORM_ORDER.map((option, index) => {
@@ -290,8 +312,8 @@ export function ContributeSheet({
                       value={otherPlatform}
                       onChange={(event) => setOtherPlatform(event.target.value)}
                       maxLength={40}
-                      aria-label="Other app or shop name"
-                      placeholder="Other — type the app or shop (e.g. Dunzo)"
+                      aria-label={t("contribute.otherAppAria")}
+                      placeholder={t("contribute.otherAppPlaceholder")}
                       className={`mt-2 w-full rounded-card border-2 px-3 py-3 text-sm placeholder:text-fg-muted focus:outline-none ${
                         otherPlatform.trim() !== ""
                           ? "border-border-strong bg-fg text-canvas placeholder:text-canvas/60"
@@ -309,7 +331,7 @@ export function ContributeSheet({
                       onChange={(event) => setShowName(event.target.checked)}
                       className="size-5 shrink-0 accent-[var(--brand-live)]"
                     />
-                    Show my name on the supporters wall
+                    {t("contribute.showName")}
                   </label>
 
                   <PosterButton
@@ -330,8 +352,10 @@ export function ContributeSheet({
                     }}
                   >
                     {submitStatus === "working"
-                      ? "Sending…"
-                      : `Mark ${formatQuantity(quantity)} sent`}
+                      ? t("contribute.sendingBtn")
+                      : t("contribute.markSent", {
+                          count: formatQuantity(quantity),
+                        })}
                   </PosterButton>
 
                   {submitStatus === "error" && submitError ? (
@@ -343,7 +367,7 @@ export function ContributeSheet({
                     </p>
                   ) : (
                     <p className="text-center text-[0.6875rem] leading-relaxed text-fg-muted">
-                      This counts as pending until a volunteer verifies it.
+                      {t("contribute.pendingNote")}
                     </p>
                   )}
                 </>
