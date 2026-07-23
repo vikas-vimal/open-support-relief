@@ -62,6 +62,12 @@ export interface SchemePalette {
   warn: string;
   /** "Fully covered" text/border. */
   success: string;
+  /**
+   * Red text/border for errors and the "rejected" state. Distinct from
+   * `--brand-urgent`, which is a FILL (pairs with white text); using that as
+   * text measures 2.67:1 on the dark surface. This one flips per theme.
+   */
+  danger: string;
   focusRing: string;
 }
 
@@ -175,6 +181,7 @@ export const appConfig: AppConfig = {
       accent: "#0074c2",
       warn: "#b45309",
       success: "#15803d",
+      danger: "#b3261e", // 6.54:1 on white
       focusRing: "#0074c2",
     },
 
@@ -198,6 +205,7 @@ export const appConfig: AppConfig = {
       accent: "#66c2ff",
       warn: "#fcd34d",
       success: "#4ade80",
+      danger: "#fca5a5", // 9.2:1 on the dark surface
       focusRing: "#66c2ff",
     },
   },

@@ -31,6 +31,7 @@ function schemeVariables(palette: SchemePalette): string {
     `--accent:${palette.accent}`,
     `--warn:${palette.warn}`,
     `--success:${palette.success}`,
+    `--danger:${palette.danger}`,
     `--focus-ring:${palette.focusRing}`,
   ].join(";");
 }

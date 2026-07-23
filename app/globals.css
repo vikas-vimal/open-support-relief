@@ -30,6 +30,7 @@
   --color-accent: var(--accent);
   --color-warn: var(--warn);
   --color-success: var(--success);
+  --color-danger: var(--danger);
 
   --color-primary: var(--brand-primary);
   --color-primary-hover: var(--brand-primary-hover);

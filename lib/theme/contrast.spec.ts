@@ -27,6 +27,7 @@ function textPairs(palette: SchemePalette): [string, string, string][] {
     ["accent text on surface", palette.accent, palette.surface],
     ["warn (NEEDED stamp) on surface", palette.warn, palette.surface],
     ["success (covered) on surface", palette.success, palette.surface],
+    ["danger (error/rejected) on surface", palette.danger, palette.surface],
   ];
 }
 

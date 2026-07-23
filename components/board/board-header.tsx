@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { appConfig } from "@/config/app.config";
 
@@ -31,6 +33,15 @@ export function BoardHeader({ shortItemCount, isOnline }: BoardHeaderProps) {
           </h1>
 
           <div className="flex shrink-0 items-center gap-2">
+            {/* Supporter's own history — the standard top-right "my stuff" slot. */}
+            <Link
+              href="/my-airdrops"
+              aria-label="My airdrops"
+              title="My airdrops"
+              className="border-border-strong bg-surface text-fg flex size-8 shrink-0 items-center justify-center rounded-icon border-2 text-sm leading-none"
+            >
+              <span aria-hidden="true">🧾</span>
+            </Link>
             <ThemeToggle />
 
             {/* Both fills carry white text and are checked against 4.5:1 by

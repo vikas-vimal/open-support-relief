@@ -71,7 +71,7 @@ export function ModerationQueue() {
     );
   }
   if (state === "error") {
-    return <p className="p-6 text-sm text-urgent">Could not load the queue.</p>;
+    return <p className="p-6 text-sm text-danger">Could not load the queue.</p>;
   }
   if (items.length === 0) {
     return (
@@ -120,7 +120,7 @@ export function ModerationQueue() {
               type="button"
               disabled={busyId === item.id}
               onClick={() => review(item.id, "REJECT")}
-              className="border-border-strong text-urgent flex-1 border-2 bg-surface px-3 py-3 text-sm font-semibold disabled:opacity-50"
+              className="border-border-strong text-danger flex-1 border-2 bg-surface px-3 py-3 text-sm font-semibold disabled:opacity-50"
             >
               Reject (restores count)
             </button>

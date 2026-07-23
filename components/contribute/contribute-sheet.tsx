@@ -191,7 +191,7 @@ export function ContributeSheet({
                   {revealStatus === "error" && revealError ? (
                     <p
                       role="alert"
-                      className="border-2 border-urgent px-3 py-2 text-center text-xs font-semibold text-urgent"
+                      className="border-2 border-danger px-3 py-2 text-center text-xs font-semibold text-danger"
                     >
                       {revealError}
                     </p>
@@ -337,7 +337,7 @@ export function ContributeSheet({
                   {submitStatus === "error" && submitError ? (
                     <p
                       role="alert"
-                      className="border-2 border-urgent px-3 py-2 text-center text-xs font-semibold text-urgent"
+                      className="border-2 border-danger px-3 py-2 text-center text-xs font-semibold text-danger"
                     >
                       {submitError}
                     </p>

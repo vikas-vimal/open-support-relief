@@ -78,7 +78,7 @@ export function ProofUpload({ onUploaded }: ProofUploadProps) {
       </button>
 
       {state === "error" && error && (
-        <p role="alert" className="text-xs font-semibold text-urgent">
+        <p role="alert" className="text-xs font-semibold text-danger">
           {error}
         </p>
       )}

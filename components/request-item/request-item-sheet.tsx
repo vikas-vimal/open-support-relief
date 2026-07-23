@@ -283,7 +283,7 @@ export function RequestItemSheet({
               {submitRequest.isError && (
                 <p
                   role="alert"
-                  className="border-urgent text-urgent rounded-card border-2 px-3 py-2 text-center text-xs font-semibold"
+                  className="border-danger text-danger rounded-card border-2 px-3 py-2 text-center text-xs font-semibold"
                 >
                   Could not send. It will retry — check your connection.
                 </p>
