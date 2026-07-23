@@ -10,6 +10,8 @@ export const queryKeys = {
   contributions: (userId: string) => ["contributions", userId] as const,
   /** Public opt-in wall — safe to fetch, deliberately not persisted to disk. */
   contributors: () => ["contributors"] as const,
+  /** Public momentum ticker — aggregate counts only, not persisted. */
+  pulse: () => ["pulse"] as const,
   /** NOT persistable — see below. */
   dropPointReveal: (dropPointId: string) =>
     ["drop-point-reveal", dropPointId] as const,

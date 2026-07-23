@@ -7,6 +7,7 @@ import { BoardSkeleton } from "@/components/board/board-skeleton";
 import { CategoryFilterBar } from "@/components/board/category-filter";
 import { FreshnessBanner } from "@/components/board/freshness-banner";
 import { NeedCard } from "@/components/board/need-card";
+import { PulseTicker } from "@/components/board/pulse-ticker";
 import { SearchBar } from "@/components/board/search-bar";
 import { ContributeSheet } from "@/components/contribute/contribute-sheet";
 import { RequestItemSheet } from "@/components/request-item/request-item-sheet";
@@ -90,6 +91,8 @@ export function AirdropBoard() {
           resultCount={matchingNeeds.length}
         />
       </div>
+
+      <PulseTicker />
 
       <main
         id="airdrop-board"

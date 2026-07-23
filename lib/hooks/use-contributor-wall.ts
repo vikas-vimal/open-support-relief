@@ -7,8 +7,11 @@ import type { ContributorWall } from "@/lib/api/schemas/contributor-wall.schema"
 import { queryKeys } from "@/lib/query/query-keys";
 
 async function fetchContributorWall(): Promise<ContributorWall> {
+  // no-store so a moderator's verify shows on the wall immediately; the response
+  // stays edge-cacheable (s-maxage) for anonymous load.
   const response = await fetch("/api/contributors", {
     headers: { accept: "application/json" },
+    cache: "no-store",
   });
   if (!response.ok) throw new Error(`Request failed: ${response.status}`);
   const parsed = contributorWallSchema.safeParse(await response.json());
