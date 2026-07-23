@@ -12,6 +12,12 @@ export const revealResponseSchema = z.object({
   recipientName: z.string().min(1),
   recipientPhone: z.string().min(1),
   instructions: z.string().nullable(),
+  /**
+   * The parcel matching code the supporter sets as the delivery recipient NAME,
+   * so a moderator can match the physical parcel to this airdrop. Issued fresh
+   * per reveal; the contribution stores exactly this value.
+   */
+  receiverCode: z.string().min(1),
   /** Reveals left in the current window, so the UI can warn before the cap. */
   remaining: z.number().int().nonnegative(),
 });

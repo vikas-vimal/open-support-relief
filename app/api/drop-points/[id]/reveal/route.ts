@@ -5,6 +5,7 @@ import { getAuthedUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { logger } from "@/lib/server/logger";
 import { checkRateLimit } from "@/lib/server/rate-limit";
+import { issueUniqueReceiverCode } from "@/lib/server/receiver-code.service";
 
 const SCOPE = "POST /api/drop-points/:id/reveal";
 const REVEAL_ACTION = "DROP_POINT_REVEAL";
@@ -93,6 +94,7 @@ export async function POST(
     recipientName: dropPoint.recipientName,
     recipientPhone: dropPoint.recipientPhone,
     instructions: dropPoint.instructions,
+    receiverCode: await issueUniqueReceiverCode(),
     remaining: limit.remaining,
   });
 

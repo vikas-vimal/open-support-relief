@@ -26,6 +26,9 @@ export async function listMyContributions(
     platform: row.platform,
     platformOther: row.platformOther,
     state: row.state,
+    receiverCode: row.receiverCode,
+    reviewReason: row.reviewReason,
+    qtyReceived: row.qtyReceived,
     createdAt: row.createdAt.toISOString(),
     reviewedAt: row.reviewedAt?.toISOString() ?? null,
   }));

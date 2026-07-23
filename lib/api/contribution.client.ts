@@ -15,6 +15,8 @@ export interface ContributionDraft {
   showName: boolean;
   /** Storage key of an uploaded proof screenshot, if any. */
   proofStoragePath?: string;
+  /** Parcel matching code issued at reveal and set as the delivery recipient name. */
+  receiverCode?: string;
 }
 
 export class ContributionError extends Error {

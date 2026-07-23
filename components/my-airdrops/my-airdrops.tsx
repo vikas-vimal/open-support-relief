@@ -101,6 +101,11 @@ export function MyAirdrops() {
                     time: formatRelativeTime(item.reviewedAt, new Date()),
                   })}`}
               </p>
+              {item.receiverCode && (
+                <p className="text-fg-muted font-mono text-[0.6875rem]">
+                  {t("mine.code", { code: item.receiverCode })}
+                </p>
+              )}
               <AirdropShareButton
                 qty={item.qtyClaimed}
                 unit={item.unit}

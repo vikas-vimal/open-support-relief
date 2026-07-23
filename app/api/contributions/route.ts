@@ -10,6 +10,7 @@ import {
   ForbiddenProofError,
   NeedNotFoundError,
   OversellError,
+  ReceiverCodeTakenError,
 } from "@/lib/server/contribution.service";
 import { logger } from "@/lib/server/logger";
 
@@ -61,6 +62,12 @@ export async function POST(request: NextRequest): Promise<Response> {
     }
     if (error instanceof ForbiddenProofError) {
       return Response.json({ error: "Invalid proof reference" }, { status: 403 });
+    }
+    if (error instanceof ReceiverCodeTakenError) {
+      return Response.json(
+        { error: "Receiver code clashed — reveal the drop point again", code: "RECEIVER_CODE_TAKEN" },
+        { status: 409 },
+      );
     }
     logger.error({
       scope: SCOPE,

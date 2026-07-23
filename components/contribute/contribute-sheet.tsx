@@ -150,6 +150,18 @@ export function ContributeSheet({
 
               {revealStatus === "revealed" && reveal ? (
                 <div className="flex flex-col gap-2">
+                  {/* The matching code is the load-bearing new field: the supporter
+                      sets it as the delivery recipient name so the parcel can be
+                      reconciled at the drop point. Shown first and emphasised. */}
+                  <div className="border-border-strong bg-primary/15 flex flex-col gap-2 border-2 p-3">
+                    <CopyField
+                      label={t("contribute.receiverCode")}
+                      value={reveal.receiverCode}
+                    />
+                    <p className="text-fg-muted text-[0.6875rem] leading-relaxed">
+                      {t("contribute.codeHint")}
+                    </p>
+                  </div>
                   <CopyField
                     label={t("contribute.fieldDropPoint")}
                     value={reveal.label}
@@ -261,6 +273,13 @@ export function ContributeSheet({
                       item: need.itemName,
                     })}
                   </p>
+                  {submitResult.receiverCode && (
+                    <p className="border-border-strong text-fg font-mono text-sm font-bold tracking-wide border-2 px-3 py-1.5">
+                      {t("contribute.yourCode", {
+                        code: submitResult.receiverCode,
+                      })}
+                    </p>
+                  )}
                   <div className="w-full max-w-xs pt-1">
                     <PosterButton onClick={onDismiss}>
                       {t("contribute.done")}
@@ -348,6 +367,8 @@ export function ContributeSheet({
                         platformOther: custom || undefined,
                         showName,
                         proofStoragePath: proofStoragePath ?? undefined,
+                        // Carry the code the supporter was shown + wrote on the parcel.
+                        receiverCode: reveal?.receiverCode,
                       });
                     }}
                   >

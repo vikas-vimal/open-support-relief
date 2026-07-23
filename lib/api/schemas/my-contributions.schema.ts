@@ -10,6 +10,11 @@ export const myContributionSchema = z.object({
   platformOther: z.string().nullable(),
   /** PENDING → awaiting; VERIFIED → confirmed; REJECTED → not accepted; DISPUTED → problem flagged. */
   state: z.enum(["PENDING", "VERIFIED", "REJECTED", "DISPUTED"]),
+  /** Parcel matching code, so the supporter can reference it. */
+  receiverCode: z.string().nullable(),
+  /** Dispute reason + optional received quantity, present only when DISPUTED. */
+  reviewReason: z.string().nullable(),
+  qtyReceived: z.number().int().nonnegative().nullable(),
   createdAt: z.iso.datetime(),
   reviewedAt: z.iso.datetime().nullable(),
 });

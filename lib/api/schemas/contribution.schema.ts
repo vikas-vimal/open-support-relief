@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { FULFILMENT_PLATFORM } from "@/lib/domain/airdrop.constants";
+import { isValidReceiverCode } from "@/lib/domain/receiver-code.util";
 
 /**
  * Contribution claim — a supporter marking that they have ordered X of an item.
@@ -26,6 +27,15 @@ export const contributionRequestSchema = z
      * attach someone else's (or an arbitrary) object.
      */
     proofStoragePath: z.string().min(1).max(256).optional(),
+    /**
+     * The parcel matching code the supporter was issued at reveal and set as the
+     * delivery recipient name. Shape-validated so a tampered value is rejected;
+     * the DB unique constraint is the final guard on duplicates.
+     */
+    receiverCode: z
+      .string()
+      .refine(isValidReceiverCode, "Invalid receiver code")
+      .optional(),
   })
   .refine(
     (data) => (data.platform === "OTHER" ? Boolean(data.platformOther) : true),
@@ -41,7 +51,9 @@ export type ContributionRequest = z.infer<typeof contributionRequestSchema>;
 export const contributionResponseSchema = z.object({
   contributionId: z.string().min(1),
   needId: z.string().min(1),
-  state: z.enum(["PENDING", "VERIFIED", "REJECTED"]),
+  state: z.enum(["PENDING", "VERIFIED", "REJECTED", "DISPUTED"]),
+  /** The stored parcel matching code, echoed so the confirm screen can show it. */
+  receiverCode: z.string().nullable(),
   /** Updated board figures so the client can reconcile without a refetch. */
   qtyFulfilled: z.number().int().nonnegative(),
   qtyReserved: z.number().int().nonnegative(),

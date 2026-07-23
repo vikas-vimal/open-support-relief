@@ -26,6 +26,14 @@ export class ForbiddenProofError extends Error {
   }
 }
 
+/** The issued receiver code was taken between reveal and confirm (≈ never). */
+export class ReceiverCodeTakenError extends Error {
+  constructor() {
+    super("Receiver code already in use — reveal the drop point again");
+    this.name = "ReceiverCodeTakenError";
+  }
+}
+
 /** Retention cap for a proof still awaiting moderator review. */
 const PROOF_PENDING_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -33,6 +41,7 @@ export interface ClaimResult {
   contributionId: string;
   needId: string;
   state: "PENDING" | "VERIFIED" | "REJECTED" | "DISPUTED";
+  receiverCode: string | null;
   qtyFulfilled: number;
   qtyReserved: number;
   shortfall: number;
@@ -90,6 +99,7 @@ export async function claimContribution(
           platformOther:
             input.platform === "OTHER" ? input.platformOther : null,
           orderRef: input.orderRef,
+          receiverCode: input.receiverCode ?? null,
           idempotencyKey,
           state: "PENDING",
         },
@@ -143,6 +153,7 @@ export async function claimContribution(
         contributionId: contribution.id,
         needId: need.id,
         state: "PENDING" as const,
+        receiverCode: contribution.receiverCode,
         qtyFulfilled: updated.qtyFulfilled,
         qtyReserved: updated.qtyReserved,
         shortfall: shortfallOf(
@@ -155,9 +166,14 @@ export async function claimContribution(
     });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      // Replayed idempotency key — return the original claim, no double count.
       if (error.code === "P2002") {
-        return replayClaim(idempotencyKey);
+        // Which unique constraint fired decides the outcome, but `meta.target` is
+        // not reliably populated by the pg driver adapter. Resolve it by fact: if
+        // a row with this idempotency key exists, this is a safe replay; if not,
+        // the receiverCode (≈ never) clashed and there is nothing to replay.
+        const replay = await replayClaim(idempotencyKey);
+        if (replay) return replay;
+        throw new ReceiverCodeTakenError();
       }
       // CHECK constraint (need_counters_nonneg) — concurrent oversell backstop.
       if (
@@ -171,17 +187,24 @@ export async function claimContribution(
   }
 }
 
-/** Returns the already-recorded claim's current view — the idempotent no-op. */
-async function replayClaim(idempotencyKey: string): Promise<ClaimResult> {
-  const existing = await prisma.contribution.findUniqueOrThrow({
+/**
+ * The idempotent no-op: the already-recorded claim's current view, or null if no
+ * row carries this key (so the P2002 came from a different unique constraint).
+ */
+async function replayClaim(
+  idempotencyKey: string,
+): Promise<ClaimResult | null> {
+  const existing = await prisma.contribution.findUnique({
     where: { idempotencyKey },
     include: { need: true },
   });
+  if (!existing) return null;
 
   return {
     contributionId: existing.id,
     needId: existing.needId,
     state: existing.state,
+    receiverCode: existing.receiverCode,
     qtyFulfilled: existing.need.qtyFulfilled,
     qtyReserved: existing.need.qtyReserved,
     shortfall: shortfallOf(
